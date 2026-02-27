@@ -50,18 +50,21 @@
 extern struct game g;
 extern struct inputs gInputs;
 extern int gShowHelp;
-//#define DEBUG
 
 extern CPSGFXEMU gemu;
 
-/// Set the overall game speed here, set to 1000 / FPS
-int time_wait = 12; // milliseconds
+int time_wait = 12;
 
 typedef struct {
    GLdouble x,y,z;
 } recVec;
 
 int gMainWindow = 0;
+
+static int gControlsActive = 1;
+static int gControlsTimer = 0;
+static float gControlsFade = 1.0f;
+static int gControlsFading = 0;
 
 void SetLighting(unsigned int mode) {
     GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
@@ -127,7 +130,115 @@ void reshape (int w, int h) {
     glutPostRedisplay();
 }
 
+static void controls_draw_string(float x, float y, const char *s) {
+    glRasterPos2f(x, y);
+    while (*s) {
+        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *s++);
+    }
+}
+
+static void controls_draw_key(float cx, float cy, float w, float h, const char *label) {
+    float x0 = cx - w * 0.5f, y0 = cy - h * 0.5f;
+    float x1 = cx + w * 0.5f, y1 = cy + h * 0.5f;
+    glColor4f(0.15f, 0.15f, 0.15f, gControlsFade);
+    glBegin(GL_QUADS);
+    glVertex2f(x0, y0); glVertex2f(x1, y0);
+    glVertex2f(x1, y1); glVertex2f(x0, y1);
+    glEnd();
+    glColor4f(1.0f, 1.0f, 1.0f, gControlsFade);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(x0, y0); glVertex2f(x1, y0);
+    glVertex2f(x1, y1); glVertex2f(x0, y1);
+    glEnd();
+    float tw = strlen(label) * 9.0f;
+    controls_draw_string(cx - tw * 0.5f, cy + 5.0f, label);
+}
+
+static void render_controls_screen(void) {
+    int w = glutGet(GLUT_WINDOW_WIDTH);
+    int h = glutGet(GLUT_WINDOW_HEIGHT);
+
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity();
+    glOrtho(0, w, h, 0, -1, 1);
+    glMatrixMode(GL_MODELVIEW); glPushMatrix(); glLoadIdentity();
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    float kw = 60.0f, kh = 32.0f, gap = 8.0f;
+    float midx = w * 0.5f;
+
+    glColor4f(1.0f, 1.0f, 1.0f, gControlsFade);
+    controls_draw_string(midx - 36.0f, 60.0f, "CONTROLS");
+
+    float ml = midx - 220.0f;
+    float ar = midx + 120.0f;
+
+    glColor4f(0.6f, 0.6f, 0.6f, gControlsFade);
+    controls_draw_string(ml - 18.0f, 120.0f, "MOVEMENT");
+    controls_draw_string(ar + 10.0f, 120.0f, "ATTACKS");
+
+    float my = 170.0f;
+    controls_draw_key(ml, my, kw, kh, "UP");
+    controls_draw_key(ml - kw - gap, my + kh + gap, kw, kh, "LEFT");
+    controls_draw_key(ml, my + kh + gap, kw, kh, "DOWN");
+    controls_draw_key(ml + kw + gap, my + kh + gap, kw, kh, "RIGHT");
+
+    float ay = 170.0f;
+    float aw = 44.0f;
+    controls_draw_key(ar, ay, aw, kh, "Q");
+    controls_draw_key(ar + aw + gap, ay, aw, kh, "W");
+    controls_draw_key(ar + 2 * (aw + gap), ay, aw, kh, "E");
+
+    glColor4f(0.6f, 0.6f, 0.6f, gControlsFade);
+    controls_draw_string(ar - 4.0f, ay + kh * 0.5f + 18.0f, "LP");
+    controls_draw_string(ar + aw + gap - 4.0f, ay + kh * 0.5f + 18.0f, "MP");
+    controls_draw_string(ar + 2 * (aw + gap) - 4.0f, ay + kh * 0.5f + 18.0f, "HP");
+
+    float ky = ay + kh + gap + 36.0f;
+    controls_draw_key(ar, ky, aw, kh, "A");
+    controls_draw_key(ar + aw + gap, ky, aw, kh, "S");
+    controls_draw_key(ar + 2 * (aw + gap), ky, aw, kh, "D");
+
+    glColor4f(0.6f, 0.6f, 0.6f, gControlsFade);
+    controls_draw_string(ar - 4.0f, ky + kh * 0.5f + 18.0f, "LK");
+    controls_draw_string(ar + aw + gap - 4.0f, ky + kh * 0.5f + 18.0f, "MK");
+    controls_draw_string(ar + 2 * (aw + gap) - 4.0f, ky + kh * 0.5f + 18.0f, "HK");
+
+    float sy = 380.0f;
+    glColor4f(1.0f, 1.0f, 1.0f, gControlsFade);
+    controls_draw_key(midx - 60.0f, sy, 40.0f, kh, "5");
+    controls_draw_string(midx - 30.0f, sy + 5.0f, "INSERT COIN");
+
+    controls_draw_key(midx - 60.0f, sy + kh + gap + 10.0f, 40.0f, kh, "1");
+    controls_draw_string(midx - 30.0f, sy + kh + gap + 10.0f + 5.0f, "START GAME");
+
+    controls_draw_key(midx - 60.0f, sy + 2 * (kh + gap + 10.0f), 40.0f, kh, "ESC");
+    controls_draw_string(midx - 30.0f, sy + 2 * (kh + gap + 10.0f) + 5.0f, "QUIT");
+
+    if (!gControlsFading && (gControlsTimer / 25) % 2 == 0) {
+        glColor4f(1.0f, 1.0f, 1.0f, gControlsFade);
+        controls_draw_string(midx - 108.0f, h - 40.0f, "PRESS ANY KEY TO CONTINUE");
+    }
+
+    glMatrixMode(GL_PROJECTION); glPopMatrix();
+    glMatrixMode(GL_MODELVIEW); glPopMatrix();
+    glEnable(GL_DEPTH_TEST);
+}
+
 void maindisplay(void) {
+    if (gControlsActive) {
+        render_controls_screen();
+        glutSwapBuffers();
+        return;
+    }
     gfx_glut_drawgame();
     glutSwapBuffers();
 }
@@ -162,6 +273,7 @@ void mouseMotion(int x, int y) {
 }
 
 void special(int key, int px, int py) {
+    if (gControlsActive) { gControlsFading = 1; return; }
     switch (key) {
         case GLUT_KEY_UP:		gInputs.p10 |= JOY_UP;    break;
         case GLUT_KEY_DOWN:		gInputs.p10 |= JOY_DOWN;  break;
@@ -197,10 +309,9 @@ void keyup(unsigned char inkey, int px, int py) {
 }
     
 void key(unsigned char inkey, int px, int py){
+    if (inkey == 27) { exit(0); }
+    if (gControlsActive) { gControlsFading = 1; return; }
     switch (inkey) {
-        case 27:
-            exit(0);
-            break;
         case 'q': case 'Q':		gInputs.p10 |=  BUTTON_A;	   break;
         case 'w': case 'W':		gInputs.p10 |=  BUTTON_B;	   break;
         case 'e': case 'E':		gInputs.p10 |=  BUTTON_C;	   break;
@@ -224,6 +335,22 @@ void key(unsigned char inkey, int px, int py){
 }
 
 void timerFunc(int value) {
+    if (gControlsActive) {
+        gControlsTimer++;
+        if (gControlsTimer >= 250) {
+            gControlsFading = 1;
+        }
+        if (gControlsFading) {
+            gControlsFade -= 0.04f;
+            if (gControlsFade <= 0.0f) {
+                gControlsFade = 0.0f;
+                gControlsActive = 0;
+            }
+        }
+        glutPostRedisplay();
+        glutTimerFunc(time_wait, timerFunc, 0);
+        return;
+    }
     task_timer();
     gif_bg_update();
 

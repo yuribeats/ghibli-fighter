@@ -28,6 +28,7 @@
 #include "sf2io.h"
 
 #include "gemu.h"
+#include "music_player.h"
 
 extern Game g;
 extern ScrollState gstate_Scroll1;
@@ -124,7 +125,7 @@ static u16 _update_ply_cursor(Player *ply, Player *plb) {		// 84c6 ply in %a4, p
 	if ((newFighterID + d2 >= 0) && (newFighterID + d2) < (AVATARMENU_COLS * AVATARMENU_ROWS)) {
 		newFighterID += d2;
 	}
-	if (newFighterID == 1 || newFighterID == 2) {	/* skip E.Honda and Blanka */
+	if (newFighterID == 1 || newFighterID == 2 || newFighterID == 5) {	/* skip E.Honda, Blanka, Chun-Li */
 		newFighterID = oldFighterID;
 	}
 	if (plb->Human && plb->FighterID == newFighterID) {
@@ -348,6 +349,7 @@ void SM_player_select(void) {		//7fc4
 				case 0:
 					NEXT(g.PLSL.mode1);
 					sub_2b7c();
+					music_player_play("./assets/music/Gimme_The_Loot_Loot_Mix.mp3");
 					if (g.OnBonusStage) {
 						g.Pause_9e1 = -1;
 					} else {

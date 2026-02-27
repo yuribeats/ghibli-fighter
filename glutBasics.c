@@ -13,8 +13,10 @@
 #include <time.h>
 
 #include <sys/types.h>
+#include <unistd.h>
 
 #ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
 #include <GLUT/glut.h>
 #include <OpenGL/glext.h>
 #include <OpenGL/gl.h>
@@ -41,6 +43,8 @@
 #include "workarounds.h"
 #include "redhammer.h"
 #include "gif_background.h"
+#include "char_overlay.h"
+#include "music_player.h"
 
 
 extern struct game g;
@@ -229,6 +233,18 @@ void timerFunc(int value) {
 
 int main(int argc, const char * argv[])
 {
+#ifdef __APPLE__
+    CFBundleRef bundle = CFBundleGetMainBundle();
+    if (bundle) {
+        CFURLRef url = CFBundleCopyResourcesDirectoryURL(bundle);
+        if (url) {
+            char path[1024];
+            if (CFURLGetFileSystemRepresentation(url, TRUE, (UInt8 *)path, sizeof(path)))
+                chdir(path);
+            CFRelease(url);
+        }
+    }
+#endif
     load_cps_roms();
 
     glutInit(&argc, (char **)argv);
@@ -240,6 +256,8 @@ int main(int argc, const char * argv[])
     init();					// standard GL init
     gfx_glut_init();
     gif_bg_init();
+    char_overlay_init();
+    atexit(music_player_stop);
     
     glutIgnoreKeyRepeat(TRUE);
 

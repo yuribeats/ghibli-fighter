@@ -23,6 +23,15 @@
 
 #include "sagat.h"
 
+void pl_cb_setstatus2_sagat(Player *ply, short status, int argd0) {
+	RHSetActionList((Object *)ply, RHOffsetLookup16(RHCODE(0x6fe22), status / 2), argd0);
+}
+void pl_cb_setstatus3_sagat(Player *ply, short status) {
+	pl_cb_setstatus2_sagat(ply, status, ply->Step ^ ply->Flip);
+}
+void pl_cb_setstatus1_sagat(Player *ply, short status) {
+	pl_cb_setstatus2_sagat(ply, status, 0);
+}
 
 int PLCBCompJumpSagat (Player *ply) {		// 36cd6
 	quirkysound(ply->ButtonStrength / 2);

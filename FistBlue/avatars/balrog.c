@@ -29,6 +29,16 @@ typedef struct UserData_Balrog UD;
 
 #include "balrog.h"
 
+void pl_cb_setstatus2_balrog(Player *ply, short status, int argd0) {
+	RHSetActionList((Object *)ply, RHOffsetLookup16(RHCODE(0x72ee0), status / 2), argd0);
+}
+void pl_cb_setstatus3_balrog(Player *ply, short status) {
+	pl_cb_setstatus2_balrog(ply, status, ply->Step ^ ply->Flip);
+}
+void pl_cb_setstatus1_balrog(Player *ply, short status) {
+	pl_cb_setstatus2_balrog(ply, status, 0);
+}
+
 static void sub_36f10(Player *ply) {
 	ply->AISigAttack = FALSE;
 	ply->AIVolley = FALSE;

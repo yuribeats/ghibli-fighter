@@ -43,6 +43,18 @@ void pl_cb_setstatus1_dhalsim(Player *ply, short status);
 void pl_cb_setstatus2_dhalsim(Player *ply, short status);
 void pl_cb_setstatus3_dhalsim(Player *ply, short status);
 
+void pl_cb_setstatus1_sagat(Player *ply, short status);
+void pl_cb_setstatus2_sagat(Player *ply, short status, int argd0);
+void pl_cb_setstatus3_sagat(Player *ply, short status);
+
+void pl_cb_setstatus1_balrog(Player *ply, short status);
+void pl_cb_setstatus2_balrog(Player *ply, short status, int argd0);
+void pl_cb_setstatus3_balrog(Player *ply, short status);
+
+void pl_cb_setstatus1_vega(Player *ply, short status);
+void pl_cb_setstatus2_vega(Player *ply, short status, int argd0);
+void pl_cb_setstatus3_vega(Player *ply, short status);
+
 
 extern Game g;
 extern CAFrame **data_37f1e[];		// all player animations
@@ -429,11 +441,11 @@ static void (*const PL_CB_SETSTATUS3[])(Player *ply, short status)={
 	pl_cb_setstatus3_zangeif,
 	pl_cb_setstatus3_dhalsim,
 	pl_cb_setstatus3_mbison,
-	NULL,
-	NULL,
-	NULL,
-	
-}; /* XXX */
+	pl_cb_setstatus3_sagat,
+	pl_cb_setstatus3_balrog,
+	pl_cb_setstatus3_vega,
+
+};
 static void (* const PL_CB_SETSTATUS2[])(Player *ply, short status, int argd0)={
 	pl_cb_setstatus2_ryu,
 	pl_cb_setstatus2_ehonda,
@@ -444,11 +456,11 @@ static void (* const PL_CB_SETSTATUS2[])(Player *ply, short status, int argd0)={
 	(void (*const)(Player *, short, int))pl_cb_setstatus2_zangeif,
 	(void (*const)(Player *, short, int))pl_cb_setstatus2_dhalsim,
 	(void (*const)(Player *, short, int))pl_cb_setstatus2_mbison,
-	NULL,
-	NULL,
-	NULL,
-	
-}; /* XXX */
+	(void (*const)(Player *, short, int))pl_cb_setstatus2_sagat,
+	(void (*const)(Player *, short, int))pl_cb_setstatus2_balrog,
+	(void (*const)(Player *, short, int))pl_cb_setstatus2_vega,
+
+};
 static void (*const PL_CB_SETSTATUS1[])(Player *ply, short status)={
 	pl_cb_setstatus1_ryu,
 	pl_cb_setstatus1_ehonda,
@@ -459,10 +471,10 @@ static void (*const PL_CB_SETSTATUS1[])(Player *ply, short status)={
 	pl_cb_setstatus1_zangeif,
 	pl_cb_setstatus1_dhalsim,
 	pl_cb_setstatus1_mbison,
-	NULL,
-	NULL,
-	NULL,
-}; /* XXX */
+	pl_cb_setstatus1_sagat,
+	pl_cb_setstatus1_balrog,
+	pl_cb_setstatus1_vega,
+};
 
 
 void setstatus4(Player *ply, short d1) {

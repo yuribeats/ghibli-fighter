@@ -172,6 +172,8 @@ static void ensure_texture(void)
 
 void gif_bg_update(void)
 {
+    gif_bg_update_title();
+
     if (!gb.active || !gb.gif)
         return;
 
@@ -200,8 +202,6 @@ void gif_bg_update(void)
                         GL_RGBA, GL_UNSIGNED_BYTE, gb.rgba);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
-
-    gif_bg_update_title();
 }
 
 void gif_bg_draw(void)

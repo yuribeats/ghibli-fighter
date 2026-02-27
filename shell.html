@@ -343,7 +343,7 @@ window.onerror = function() {
   }
   document.addEventListener('keydown', dismiss);
   document.addEventListener('mousedown', dismiss);
-  document.addEventListener('touchstart', dismiss);
+  document.addEventListener('touchstart', dismiss, {passive: false});
 })();
 // Touch gamepad
 (function() {

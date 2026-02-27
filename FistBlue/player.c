@@ -132,16 +132,14 @@ static void apply_throw_damage(Player *ply, Player *opp_a3, short index) {		///0
     opp_a3->RewardID = dr.d5;             /* score reward */
     if (g.FastEndingFight == 0 && g.OnBonusStage == 0) {
         if(opp_a3->Energy >= dr.damage) { return; }
-        
-        /* player is knocked out */
+
+        /* throw will KO - play sound and start time warp,
+           but let UndealtDamage apply naturally during tumble landing */
         if(opp_a3->FighterID == FID_CHUN_LI) {
             queuesound(SOUND_KO_FEMALE);
         } else {
             queuesound(SOUND_KO_MALE);
         }
-        opp_a3->Energy        = -1;
-        opp_a3->UndealtDamage = 0;
-        
         QueueEffect(opp_a3->RewardID, opp_a3->Side ^ 1);
 		LBStartTimeWarp();
     } else {

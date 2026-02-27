@@ -349,8 +349,7 @@ void SM_player_select(void) {		//7fc4
 				case 0:
 					NEXT(g.PLSL.mode1);
 					sub_2b7c();
-					music_player_play("./assets/music/redrumlake.25minutes.mp3");
-					if (g.OnBonusStage) {
+		if (g.OnBonusStage) {
 						g.Pause_9e1 = -1;
 					} else {
 						if ((obj = AllocActor())) {

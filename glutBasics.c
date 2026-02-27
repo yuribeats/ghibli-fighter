@@ -383,7 +383,8 @@ int main(int argc, const char * argv[])
     gif_bg_init();
     char_overlay_init();
     atexit(music_player_stop);
-    
+    music_player_play("./assets/music/redrumlake.25minutes.mp3");
+
     glutIgnoreKeyRepeat(TRUE);
 
     glutReshapeFunc(reshape);

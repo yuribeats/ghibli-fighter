@@ -130,35 +130,38 @@ void reshape (int w, int h) {
     glutPostRedisplay();
 }
 
-static void controls_draw_string(float x, float y, const char *s) {
+static void ctrl_string(float x, float y, const char *s) {
     glRasterPos2f(x, y);
-    while (*s) {
-        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *s++);
-    }
+    while (*s) glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *s++);
 }
 
-static void controls_draw_key(float cx, float cy, float w, float h, const char *label) {
+static void ctrl_key(float cx, float cy, float w, float h, const char *label) {
     float x0 = cx - w * 0.5f, y0 = cy - h * 0.5f;
     float x1 = cx + w * 0.5f, y1 = cy + h * 0.5f;
-    glColor4f(0.15f, 0.15f, 0.15f, gControlsFade);
+    glColor3f(0.15f, 0.15f, 0.15f);
     glBegin(GL_QUADS);
     glVertex2f(x0, y0); glVertex2f(x1, y0);
     glVertex2f(x1, y1); glVertex2f(x0, y1);
     glEnd();
-    glColor4f(1.0f, 1.0f, 1.0f, gControlsFade);
+    glColor3f(1.0f, 1.0f, 1.0f);
     glBegin(GL_LINE_LOOP);
     glVertex2f(x0, y0); glVertex2f(x1, y0);
     glVertex2f(x1, y1); glVertex2f(x0, y1);
     glEnd();
     float tw = strlen(label) * 9.0f;
-    controls_draw_string(cx - tw * 0.5f, cy + 5.0f, label);
+    ctrl_string(cx - tw * 0.5f, cy + 5.0f, label);
 }
 
-static void render_controls_screen(void) {
+static void render_controls_overlay(void) {
+    GLint vp[4];
+    GLint matrixMode;
     int w = glutGet(GLUT_WINDOW_WIDTH);
     int h = glutGet(GLUT_WINDOW_HEIGHT);
 
+    glGetIntegerv(GL_VIEWPORT, vp);
     glViewport(0, 0, w, h);
+    glGetIntegerv(GL_MATRIX_MODE, &matrixMode);
+
     glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity();
     glOrtho(0, w, h, 0, -1, 1);
     glMatrixMode(GL_MODELVIEW); glPushMatrix(); glLoadIdentity();
@@ -169,75 +172,73 @@ static void render_controls_screen(void) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glColor4f(0.0f, 0.0f, 0.0f, gControlsFade);
+    glBegin(GL_QUADS);
+    glVertex2f(0, 0); glVertex2f(w, 0);
+    glVertex2f(w, h); glVertex2f(0, h);
+    glEnd();
 
     float kw = 60.0f, kh = 32.0f, gap = 8.0f;
     float midx = w * 0.5f;
-
-    glColor4f(1.0f, 1.0f, 1.0f, gControlsFade);
-    controls_draw_string(midx - 36.0f, 60.0f, "CONTROLS");
-
     float ml = midx - 220.0f;
     float ar = midx + 120.0f;
 
-    glColor4f(0.6f, 0.6f, 0.6f, gControlsFade);
-    controls_draw_string(ml - 18.0f, 120.0f, "MOVEMENT");
-    controls_draw_string(ar + 10.0f, 120.0f, "ATTACKS");
+    glColor3f(1.0f, 1.0f, 1.0f);
+    ctrl_string(midx - 36.0f, 60.0f, "CONTROLS");
+
+    glColor3f(0.6f, 0.6f, 0.6f);
+    ctrl_string(ml - 18.0f, 120.0f, "MOVEMENT");
+    ctrl_string(ar + 10.0f, 120.0f, "ATTACKS");
 
     float my = 170.0f;
-    controls_draw_key(ml, my, kw, kh, "UP");
-    controls_draw_key(ml - kw - gap, my + kh + gap, kw, kh, "LEFT");
-    controls_draw_key(ml, my + kh + gap, kw, kh, "DOWN");
-    controls_draw_key(ml + kw + gap, my + kh + gap, kw, kh, "RIGHT");
+    ctrl_key(ml, my, kw, kh, "UP");
+    ctrl_key(ml - kw - gap, my + kh + gap, kw, kh, "LEFT");
+    ctrl_key(ml, my + kh + gap, kw, kh, "DOWN");
+    ctrl_key(ml + kw + gap, my + kh + gap, kw, kh, "RIGHT");
 
-    float ay = 170.0f;
-    float aw = 44.0f;
-    controls_draw_key(ar, ay, aw, kh, "Q");
-    controls_draw_key(ar + aw + gap, ay, aw, kh, "W");
-    controls_draw_key(ar + 2 * (aw + gap), ay, aw, kh, "E");
+    float ay = 170.0f, aw = 44.0f;
+    ctrl_key(ar, ay, aw, kh, "Q");
+    ctrl_key(ar + aw + gap, ay, aw, kh, "W");
+    ctrl_key(ar + 2 * (aw + gap), ay, aw, kh, "E");
 
-    glColor4f(0.6f, 0.6f, 0.6f, gControlsFade);
-    controls_draw_string(ar - 4.0f, ay + kh * 0.5f + 18.0f, "LP");
-    controls_draw_string(ar + aw + gap - 4.0f, ay + kh * 0.5f + 18.0f, "MP");
-    controls_draw_string(ar + 2 * (aw + gap) - 4.0f, ay + kh * 0.5f + 18.0f, "HP");
+    glColor3f(0.6f, 0.6f, 0.6f);
+    ctrl_string(ar - 4.0f, ay + kh * 0.5f + 18.0f, "LP");
+    ctrl_string(ar + aw + gap - 4.0f, ay + kh * 0.5f + 18.0f, "MP");
+    ctrl_string(ar + 2 * (aw + gap) - 4.0f, ay + kh * 0.5f + 18.0f, "HP");
 
     float ky = ay + kh + gap + 36.0f;
-    controls_draw_key(ar, ky, aw, kh, "A");
-    controls_draw_key(ar + aw + gap, ky, aw, kh, "S");
-    controls_draw_key(ar + 2 * (aw + gap), ky, aw, kh, "D");
+    ctrl_key(ar, ky, aw, kh, "A");
+    ctrl_key(ar + aw + gap, ky, aw, kh, "S");
+    ctrl_key(ar + 2 * (aw + gap), ky, aw, kh, "D");
 
-    glColor4f(0.6f, 0.6f, 0.6f, gControlsFade);
-    controls_draw_string(ar - 4.0f, ky + kh * 0.5f + 18.0f, "LK");
-    controls_draw_string(ar + aw + gap - 4.0f, ky + kh * 0.5f + 18.0f, "MK");
-    controls_draw_string(ar + 2 * (aw + gap) - 4.0f, ky + kh * 0.5f + 18.0f, "HK");
+    glColor3f(0.6f, 0.6f, 0.6f);
+    ctrl_string(ar - 4.0f, ky + kh * 0.5f + 18.0f, "LK");
+    ctrl_string(ar + aw + gap - 4.0f, ky + kh * 0.5f + 18.0f, "MK");
+    ctrl_string(ar + 2 * (aw + gap) - 4.0f, ky + kh * 0.5f + 18.0f, "HK");
 
     float sy = 380.0f;
-    glColor4f(1.0f, 1.0f, 1.0f, gControlsFade);
-    controls_draw_key(midx - 60.0f, sy, 40.0f, kh, "5");
-    controls_draw_string(midx - 30.0f, sy + 5.0f, "INSERT COIN");
-
-    controls_draw_key(midx - 60.0f, sy + kh + gap + 10.0f, 40.0f, kh, "1");
-    controls_draw_string(midx - 30.0f, sy + kh + gap + 10.0f + 5.0f, "START GAME");
-
-    controls_draw_key(midx - 60.0f, sy + 2 * (kh + gap + 10.0f), 40.0f, kh, "ESC");
-    controls_draw_string(midx - 30.0f, sy + 2 * (kh + gap + 10.0f) + 5.0f, "QUIT");
+    glColor3f(1.0f, 1.0f, 1.0f);
+    ctrl_key(midx - 60.0f, sy, 40.0f, kh, "5");
+    ctrl_string(midx - 30.0f, sy + 5.0f, "INSERT COIN");
+    ctrl_key(midx - 60.0f, sy + kh + gap + 10.0f, 40.0f, kh, "1");
+    ctrl_string(midx - 30.0f, sy + kh + gap + 10.0f + 5.0f, "START GAME");
+    ctrl_key(midx - 60.0f, sy + 2 * (kh + gap + 10.0f), 40.0f, kh, "ESC");
+    ctrl_string(midx - 30.0f, sy + 2 * (kh + gap + 10.0f) + 5.0f, "QUIT");
 
     if (!gControlsFading && (gControlsTimer / 25) % 2 == 0) {
-        glColor4f(1.0f, 1.0f, 1.0f, gControlsFade);
-        controls_draw_string(midx - 108.0f, h - 40.0f, "PRESS ANY KEY TO CONTINUE");
+        ctrl_string(midx - 108.0f, h - 40.0f, "PRESS ANY KEY TO CONTINUE");
     }
 
+    glPopMatrix();
     glMatrixMode(GL_PROJECTION); glPopMatrix();
-    glMatrixMode(GL_MODELVIEW); glPopMatrix();
-    glEnable(GL_DEPTH_TEST);
+    glMatrixMode(matrixMode);
+    glViewport(vp[0], vp[1], vp[2], vp[3]);
 }
 
 void maindisplay(void) {
+    gfx_glut_drawgame();
     if (gControlsActive) {
-        render_controls_screen();
-    } else {
-        gfx_glut_drawgame();
+        render_controls_overlay();
     }
     glutSwapBuffers();
 }

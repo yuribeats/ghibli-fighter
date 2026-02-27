@@ -8,6 +8,8 @@ find_package(Threads REQUIRED)
 
 add_executable(glutBasics glutBasics.c
             trackball.c
+			gifdec/gifdec.c
+			FistBlue/gif_background.c
 			FistBlue/coinage.c
 			FistBlue/collision.c
 			FistBlue/coll_bonus.c
@@ -83,8 +85,9 @@ add_executable(glutBasics glutBasics.c
 			FistBlue/avatars/ryuken_human.c				
 )
 
-target_include_directories(glutBasics PUBLIC 
+target_include_directories(glutBasics PUBLIC
     .
+    gifdec
     SiennaBird
     RedHammer 
     FistBlue 

@@ -13,6 +13,7 @@
 #include "scroll_data.h"
 #include "parallax.h"
 #include "gemu.h"
+#include "gif_background.h"
 
 extern CPSGFXEMU gemu;
 extern Game g;
@@ -306,6 +307,7 @@ void TMInitForStage(void){			/* 83716 setup tilemaps & palettes from g.Pallete1 
 	GSStageScroll1(g.Stage);
 	GSStageScroll2(g.Stage);
 	GSStageScroll3(g.Stage);
+	gif_bg_load_stage(g.Stage);
 }
 
 /**

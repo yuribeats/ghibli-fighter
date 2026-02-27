@@ -40,6 +40,7 @@
 #include "gemu.h"
 #include "workarounds.h"
 #include "redhammer.h"
+#include "gif_background.h"
 
 
 extern struct game g;
@@ -177,12 +178,12 @@ void specialup(int key, int px, int py) {
 
 void keyup(unsigned char inkey, int px, int py) {
     switch (inkey) {
-        case 'q':		gInputs.p10 &= ~(BUTTON_A);	            break;
-        case 'w':		gInputs.p10 &= ~(BUTTON_B);	            break;
-        case 'e':		gInputs.p10 &= ~(BUTTON_C);	            break;
-        case 'a':		gInputs.p11 &= ~(BUTTON_D >> 8);        break;
-        case 's':		gInputs.p11 &= ~(BUTTON_E >> 8);        break;
-        case 'd':		gInputs.p11 &= ~(BUTTON_F >> 8);        break;
+        case 'q': case 'Q':		gInputs.p10 &= ~(BUTTON_A);	            break;
+        case 'w': case 'W':		gInputs.p10 &= ~(BUTTON_B);	            break;
+        case 'e': case 'E':		gInputs.p10 &= ~(BUTTON_C);	            break;
+        case 'a': case 'A':		gInputs.p11 &= ~(BUTTON_D >> 8);        break;
+        case 's': case 'S':		gInputs.p11 &= ~(BUTTON_E >> 8);        break;
+        case 'd': case 'D':		gInputs.p11 &= ~(BUTTON_F >> 8);        break;
         case '1':       gInputs.in0 &= ~IPT_START1;	            break;
         case '2':       gInputs.in0 &= ~IPT_START2;	            break;
         case '5':       gInputs.in0 &= ~IPT_COIN1;	            break;
@@ -196,12 +197,12 @@ void key(unsigned char inkey, int px, int py){
         case 27:
             exit(0);
             break;
-        case 'q':		gInputs.p10 |=  BUTTON_A;	   break;
-        case 'w':		gInputs.p10 |=  BUTTON_B;	   break;
-        case 'e':		gInputs.p10 |=  BUTTON_C;	   break;
-        case 'a':		gInputs.p11 |=  BUTTON_D >> 8; break;
-        case 's':		gInputs.p11 |=  BUTTON_E >> 8; break;
-        case 'd':		gInputs.p11 |=  BUTTON_F >> 8; break;
+        case 'q': case 'Q':		gInputs.p10 |=  BUTTON_A;	   break;
+        case 'w': case 'W':		gInputs.p10 |=  BUTTON_B;	   break;
+        case 'e': case 'E':		gInputs.p10 |=  BUTTON_C;	   break;
+        case 'a': case 'A':		gInputs.p11 |=  BUTTON_D >> 8; break;
+        case 's': case 'S':		gInputs.p11 |=  BUTTON_E >> 8; break;
+        case 'd': case 'D':		gInputs.p11 |=  BUTTON_F >> 8; break;
         case '1':       gInputs.in0 |= IPT_START1;	   break;
         case '2':       gInputs.in0 |= IPT_START2;	   break;
         case '5':       gInputs.in0 |= IPT_COIN1;	   break;
@@ -220,7 +221,8 @@ void key(unsigned char inkey, int px, int py){
 
 void timerFunc(int value) {
     task_timer();
-  
+    gif_bg_update();
+
     glutPostRedisplay();
     glutTimerFunc(time_wait, timerFunc, 0);
 }
@@ -237,6 +239,7 @@ int main(int argc, const char * argv[])
 
     init();					// standard GL init
     gfx_glut_init();
+    gif_bg_init();
     
     glutIgnoreKeyRepeat(TRUE);
 

@@ -38,6 +38,7 @@ extern Game g;
 #include "effects.h"
 
 #include "cps_tile.h"
+#include "gif_background.h"
 
 extern CPSGFXEMU gemu;
 extern struct cps_a_regs cps_a_emu;
@@ -145,11 +146,25 @@ static void draw_scroll2_planes(void);
 static void draw_scroll3(void);
 static void draw_object(void);
 
+static void draw_scroll2_or_gif(void) {
+	if (gif_bg_is_active()) {
+		gif_bg_draw();
+	} else {
+		draw_scroll2();
+	}
+}
+static void draw_scroll3_or_gif(void) {
+	if (gif_bg_is_active()) {
+		return;  /* GIF replaces both scroll layers */
+	}
+	draw_scroll3();
+}
+
 void (*SCROLL[])(void) = {
 	draw_object,
 	draw_scroll1,
-    draw_scroll2,           //    draw_scroll2_planes,
-	draw_scroll3,
+    draw_scroll2_or_gif,
+	draw_scroll3_or_gif,
 };
 
 static struct texture_cache_t {

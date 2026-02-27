@@ -270,7 +270,6 @@ body.touch canvas {
       </div>
     </div>
     <div class="section">
-      <div class="entry"><span class="key">5</span> INSERT COIN</div>
       <div class="entry"><span class="key">1</span> START GAME</div>
     </div>
     <div style="margin-top:30px;font-size:12px;opacity:0.6;">MUSIC WILL PLAY</div>
@@ -279,7 +278,6 @@ body.touch canvas {
 </div>
 <div id="gamepad">
   <div id="gp-top">
-    <div class="gp-btn gp-meta" data-kc="53" data-key="5">COIN</div>
     <div class="gp-btn gp-meta" data-kc="49" data-key="1">START</div>
   </div>
   <div id="gp-dpad">
@@ -351,7 +349,12 @@ window.onerror = function() {
   document.body.classList.add('touch');
   var canvas = document.getElementById('canvas');
 
+  var sent = {};
   function sendKey(type, keyCode, key) {
+    var id = type[3] + keyCode;
+    if (sent[id]) return;
+    sent[id] = 1;
+    requestAnimationFrame(function() { delete sent[id]; });
     canvas.dispatchEvent(new KeyboardEvent(type, {
       keyCode: keyCode, which: keyCode, key: key,
       bubbles: true, cancelable: true

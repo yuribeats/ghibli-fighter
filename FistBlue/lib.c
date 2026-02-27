@@ -179,6 +179,9 @@ static void decode_jumpers(void) {
 	decode_coincosts();
 	decode_difficulty();
 	decode_params();
+#ifdef __EMSCRIPTEN__
+	g.FreePlay = TRUE;
+#endif
 }
 
 void read_jumpers(void) {

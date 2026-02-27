@@ -320,7 +320,7 @@ void keyup(unsigned char inkey, int px, int py) {
 void key(unsigned char inkey, int px, int py){
 #ifdef __EMSCRIPTEN__
     if (inkey == 27) { return; }
-    EM_ASM({ if (window._sf2audio) window._sf2audio.play().catch(function(){}); });
+    EM_ASM({ if (window._sf2audio && window._sf2audio.state !== 'running') window._sf2audio.play().catch(function(){}); });
 #else
     if (inkey == 27) { exit(0); }
 #endif

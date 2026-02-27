@@ -12,11 +12,18 @@
 
 #include "gif_background.h"
 #include "gifdec.h"
+#include "stb_image.h"
 
 #include "sf2types.h"
 #include "structs.h"
 
 extern Game g;
+
+/* Character select background (static PNG) */
+static struct {
+    GLuint  texture;
+    int     loaded;
+} cs_bg;
 
 #define GIF_MAX_STAGES    12
 #define CPS_VIEWPORT_W   384
@@ -224,4 +231,63 @@ void gif_bg_draw(void)
 int gif_bg_is_active(void)
 {
     return gb.active;
+}
+
+/* Character select background */
+void gif_bg_load_charselect(void)
+{
+    int w, h, channels;
+    unsigned char *data = stbi_load("./assets/backgrounds/charselect.png", &w, &h, &channels, 4);
+    if (!data) {
+        printf("charselect_bg: failed to load PNG\n");
+        return;
+    }
+
+    if (cs_bg.texture)
+        glDeleteTextures(1, &cs_bg.texture);
+
+    glGenTextures(1, &cs_bg.texture);
+    glBindTexture(GL_TEXTURE_2D, cs_bg.texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    stbi_image_free(data);
+    cs_bg.loaded = 1;
+    printf("charselect_bg: loaded %dx%d\n", w, h);
+}
+
+void gif_bg_draw_charselect(void)
+{
+    if (!cs_bg.loaded || !cs_bg.texture)
+        return;
+
+    float left   = -6.5f;
+    float right  =  6.5f;
+    float bottom = -4.5f;
+    float top    =  4.5f;
+
+    glPushMatrix();
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, cs_bg.texture);
+    glColor3f(1.0f, 1.0f, 1.0f);
+
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(left,  bottom, 0.0f);
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(right, bottom, 0.0f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(right, top,    0.0f);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(left,  top,    0.0f);
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glPopMatrix();
+}
+
+int gif_bg_charselect_active(void)
+{
+    return cs_bg.loaded && g.mode0 == 2 && g.mode1 == 0;
 }

@@ -39,6 +39,7 @@ extern Game g;
 
 #include "cps_tile.h"
 #include "gif_background.h"
+#include "char_overlay.h"
 
 extern CPSGFXEMU gemu;
 extern struct cps_a_regs cps_a_emu;
@@ -147,15 +148,17 @@ static void draw_scroll3(void);
 static void draw_object(void);
 
 static void draw_scroll2_or_gif(void) {
-	if (gif_bg_is_active()) {
+	if (gif_bg_charselect_active()) {
+		gif_bg_draw_charselect();
+	} else if (gif_bg_is_active()) {
 		gif_bg_draw();
 	} else {
 		draw_scroll2();
 	}
 }
 static void draw_scroll3_or_gif(void) {
-	if (gif_bg_is_active()) {
-		return;  /* GIF replaces both scroll layers */
+	if (gif_bg_charselect_active() || gif_bg_is_active()) {
+		return;  /* background replaces both scroll layers */
 	}
 	draw_scroll3();
 }
@@ -915,7 +918,9 @@ void gfx_glut_drawgame(void) {
 	SCROLL[(g.CPS.DispEna >>   8) & 3]();
 	SCROLL[(g.CPS.DispEna >>  10) & 3]();
 	SCROLL[(g.CPS.DispEna >>  12) & 3]();
-	
+
+	char_overlay_draw();
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
 	glDisable(GL_SCISSOR_TEST);

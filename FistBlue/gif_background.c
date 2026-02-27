@@ -211,10 +211,10 @@ void gif_bg_draw(void)
     glColor3f(1.0f, 1.0f, 1.0f);
 
     glBegin(GL_QUADS);
-    glTexCoord2f(u_left,  0.0f); glVertex3f(left,  top,    0.0f);
-    glTexCoord2f(u_right, 0.0f); glVertex3f(right, top,    0.0f);
-    glTexCoord2f(u_right, 1.0f); glVertex3f(right, bottom, 0.0f);
-    glTexCoord2f(u_left,  1.0f); glVertex3f(left,  bottom, 0.0f);
+    glTexCoord2f(u_left,  0.0f); glVertex3f(left,  bottom, 0.0f);
+    glTexCoord2f(u_right, 0.0f); glVertex3f(right, bottom, 0.0f);
+    glTexCoord2f(u_right, 1.0f); glVertex3f(right, top,    0.0f);
+    glTexCoord2f(u_left,  1.0f); glVertex3f(left,  top,    0.0f);
     glEnd();
 
     glBindTexture(GL_TEXTURE_2D, 0);

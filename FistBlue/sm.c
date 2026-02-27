@@ -18,6 +18,7 @@
 #include	"playerselect.h"
 #include	"effects.h"
 #include	"demo.h"
+#include	"gif_background.h"
 #include "gemu.h"
 #include "sf2io.h"
 #include "endings.h"
@@ -648,7 +649,8 @@ static void gamemode_init_round (void) {
 			init_fightgfx();        
 			print_timeremaining();
 			action_start_22();          /* start the Round X ... anim */
-			setup_stage_actions();
+			if (!gif_bg_is_active())
+				setup_stage_actions();
 			break;
 		case 6:
 			if(g.GSInitComplete) {

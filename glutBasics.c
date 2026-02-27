@@ -45,6 +45,9 @@
 #include "gif_background.h"
 #include "char_overlay.h"
 #include "music_player.h"
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 
 extern struct game g;
@@ -67,6 +70,7 @@ static float gControlsFade = 1.0f;
 static int gControlsFading = 0;
 
 void SetLighting(unsigned int mode) {
+#ifndef __EMSCRIPTEN__
     GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
     GLfloat mat_shininess[] = {90.0};
 
@@ -75,10 +79,10 @@ void SetLighting(unsigned int mode) {
     GLfloat ambient[4]  = {0.5, 0.5, 0.5, 1.0};
     GLfloat diffuse[4]  = {1.0, 1.0, 1.0, 1.0};
     GLfloat specular[4] = {1.0, 1.0, 1.0, 1.0};
-    
+
     glMaterialfv (GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
     glMaterialfv (GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-    
+
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
 
@@ -102,12 +106,13 @@ void SetLighting(unsigned int mode) {
             glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,GL_TRUE);
             break;
     }
-    
+
     glLightfv(GL_LIGHT0,GL_POSITION,position);
     glLightfv(GL_LIGHT0,GL_AMBIENT,ambient);
     glLightfv(GL_LIGHT0,GL_DIFFUSE,diffuse);
     glLightfv(GL_LIGHT0,GL_SPECULAR,specular);
     glEnable(GL_LIGHT0);
+#endif
 }
 
 void init (void) {
@@ -131,8 +136,10 @@ void reshape (int w, int h) {
 }
 
 static void ctrl_string(float x, float y, const char *s) {
+#ifndef __EMSCRIPTEN__
     glRasterPos2f(x, y);
     while (*s) glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *s++);
+#endif
 }
 
 static void ctrl_key(float cx, float cy, float w, float h, const char *label) {
@@ -237,9 +244,11 @@ static void render_controls_overlay(void) {
 
 void maindisplay(void) {
     gfx_glut_drawgame();
+#ifndef __EMSCRIPTEN__
     if (gControlsActive) {
         render_controls_overlay();
     }
+#endif
     glutSwapBuffers();
 }
 
@@ -309,7 +318,12 @@ void keyup(unsigned char inkey, int px, int py) {
 }
     
 void key(unsigned char inkey, int px, int py){
+#ifdef __EMSCRIPTEN__
+    if (inkey == 27) { return; }
+    EM_ASM({ if (window._sf2audio) window._sf2audio.play().catch(function(){}); });
+#else
     if (inkey == 27) { exit(0); }
+#endif
     if (gControlsActive) { gControlsFading = 1; }
     switch (inkey) {
         case 'q': case 'Q':		gInputs.p10 |=  BUTTON_A;	   break;
@@ -373,7 +387,7 @@ int main(int argc, const char * argv[])
     load_cps_roms();
 
     glutInit(&argc, (char **)argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); 
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowPosition (300, 50);
     glutInitWindowSize (900, 600);
     gMainWindow = glutCreateWindow("sf2GL");
@@ -386,7 +400,9 @@ int main(int argc, const char * argv[])
     atexit(music_player_stop);
     music_player_play("./assets/music/redrumlake.25minutes.mp3");
 
+#ifndef __EMSCRIPTEN__
     glutIgnoreKeyRepeat(TRUE);
+#endif
 
     glutReshapeFunc(reshape);
     glutDisplayFunc(maindisplay);

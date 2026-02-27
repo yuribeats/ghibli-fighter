@@ -15,6 +15,7 @@
 #include "playerstate.h"
 #include "reactmode.h"
 #include "sprite.h"
+#include "char_overlay.h"
 
 #include <stdio.h>
 
@@ -795,9 +796,9 @@ static void _DSDrawPlayers(void) {
 inline static void draw_playersprite(Player *ply) {
 	if (ply->exists && ply->flag1) {
 		ply->OnGround = ply->Airborne;
-		drawsprite((Object *)ply);
+		if (!char_overlay_has_replacement(ply->FighterID))
+			drawsprite((Object *)ply);
 	}
-    
 }
 
 static void _DSDrawShadows(void) {
@@ -912,7 +913,17 @@ void drawsprite(Object *obj) {         /* 7edaa */
     //}
     sprite_coords(obj, coordpair);	/* set coords in d0 and d1 to follow scroll X */
 
-    image = (const struct image *)RHCODE(RHSwapLong(obj->ActionScript->Image));
+    {
+        u32 raw_image = obj->ActionScript->Image;
+        u32 swapped = RHSwapLong(raw_image);
+        if (swapped >= 0x100000) {
+            printf("drawsprite: BAD image offset 0x%08x (raw 0x%08x) AS=%ld\n",
+                   swapped, raw_image,
+                   (long)((char*)obj->ActionScript - g_code_roms));
+            return;
+        }
+        image = (const struct image *)RHCODE(swapped);
+    }
 
     if (image == NULL) {
         return;

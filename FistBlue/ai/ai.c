@@ -371,8 +371,11 @@ static void _AIBeginAgain(Player *ply) {
 	debug_ai_recurse++;
 
 	if (debug_ai_recurse > 20) {
-		printf("AI Recursed too deep!\n");
-		FBPanic(0);
+		printf("AI Recursed too deep! (bailing out)\n");
+		debug_ai_recurse = 0;
+		ply->AIMode1 = 0;
+		ply->AIMode2 = 0;
+		return;
 	}
 	ply->AIMode2 = 0;
 	ply->AISigAttack = ply->CompDoBlockStun =

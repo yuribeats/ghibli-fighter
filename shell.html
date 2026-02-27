@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SF2</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+#loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+#loading .bar {
+  width: 200px;
+  height: 4px;
+  background: #333;
+  margin-top: 16px;
+}
+#loading .fill {
+  height: 100%;
+  background: #fff;
+  width: 0%;
+  transition: width 0.2s;
+}
+</style>
+</head>
+<body>
+<canvas id="canvas" width="900" height="600" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+<div id="loading">
+  <div>LOADING</div>
+  <div class="bar"><div class="fill" id="progress"></div></div>
+</div>
+<script>
+var Module = {
+  canvas: (function() { return document.getElementById('canvas'); })(),
+  onRuntimeInitialized: function() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('canvas').focus();
+  },
+  setStatus: function(text) {
+    var m = text.match(/(\d+(\.\d+)?)\//);
+    var p = document.getElementById('progress');
+    if (m && p) {
+      var pct = Math.min(100, (parseFloat(m[1]) / parseFloat(text.split('/')[1])) * 100);
+      p.style.width = pct + '%';
+    }
+  },
+  monitorRunDependencies: function(left) {
+    if (left === 0) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('canvas').focus();
+    }
+  }
+};
+window.onerror = function() {
+  document.getElementById('loading').innerHTML = '<div>ERROR</div>';
+};
+</script>
+{{{ SCRIPT }}}
+</body>
+</html>

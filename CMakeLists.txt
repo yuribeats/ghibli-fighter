@@ -9,7 +9,10 @@ find_package(Threads REQUIRED)
 add_executable(glutBasics glutBasics.c
             trackball.c
 			gifdec/gifdec.c
+			stb/stb_image.c
 			FistBlue/gif_background.c
+			FistBlue/char_overlay.c
+			FistBlue/music_player.c
 			FistBlue/coinage.c
 			FistBlue/collision.c
 			FistBlue/coll_bonus.c
@@ -88,6 +91,7 @@ add_executable(glutBasics glutBasics.c
 target_include_directories(glutBasics PUBLIC
     .
     gifdec
+    stb
     SiennaBird
     RedHammer 
     FistBlue 
@@ -100,7 +104,8 @@ target_include_directories(glutBasics PUBLIC
     SwiftBeam
 )
 
-target_link_libraries(glutBasics PRIVATE m OpenGL::GL OpenGL::GLU GLUT::GLUT Threads::Threads)
+target_link_libraries(glutBasics PRIVATE m OpenGL::GL OpenGL::GLU GLUT::GLUT Threads::Threads
+    "-framework CoreGraphics" "-framework ImageIO" "-framework CoreFoundation" "-framework CoreServices")
 
 if (APPLE)
     message(STATUS "Designed by Apple in California")

@@ -30,7 +30,18 @@
 #ifdef __arm__
 #define SF2_ENDIAN_LITTLE
 #define SF2_CPU_ARM
-#endif 
+#endif
+
+#ifdef __aarch64__
+#define SF2_ENDIAN_LITTLE
+#define SF2_CPU_ARM64
+#endif
+
+#ifdef __wasm32__
+#define SF2_ENDIAN_LITTLE
+#define SF2_CPU_WASM32
+#endif
+
 // Big Endian CPUs
 
 #ifdef __powerpc__

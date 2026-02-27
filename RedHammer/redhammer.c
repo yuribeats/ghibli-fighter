@@ -78,7 +78,7 @@ void load_cps_roms(void)
 {
     if ((g_code_roms = malloc(ALL_CODE_SIZE))) {
 #ifdef REDHAMMER_USE_ALLROMS_BIN
-        FILE *allroms = fopen("allroms.bin", "r");
+        FILE *allroms = fopen("allroms.bin", "rb");
         if (allroms == NULL) {
             puts("Can't open allroms.bin\n");
             exit(EXIT_FAILURE);

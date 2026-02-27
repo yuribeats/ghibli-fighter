@@ -353,7 +353,7 @@ u16 *ehonda;
 void gfx_glut_init(void) {
 	int i;
 	
-    gfxrom=fopen( "./sf2gfx.bin", "r" );
+    gfxrom=fopen( "./sf2gfx.bin", "rb" );
     if(gfxrom == NULL) {
         printf("fatal: couldn't open graphics ROM in %s", getcwd(NULL, 0));
         exit(EXIT_FAILURE);
@@ -507,7 +507,7 @@ void gemu_readtile_scroll3(u16 tileid) {
 #pragma mark Tile drawing
 
 static inline void draw_gl_tile(int sx, int sy, int flip, float size) {
-    glBegin(GL_POLYGON);
+    glBegin(GL_TRIANGLE_FAN);
     glTexCoord2f(flips[flip][0][0],flips[flip][0][1]);
     glVertex3f(((sx+1) * size), ((sy+1) * size), 0.0f);
     glTexCoord2f(flips[flip][1][0],flips[flip][1][1]);
@@ -556,7 +556,7 @@ static void draw_object(void) {
 
 #define DRAWTILE(TILE,PAL,FLIP,sx,sy)										\
 gemu_cache_object(TILE, gemu.Tilemap_Object[i][3] & 0x1f);					\
-glBegin(GL_POLYGON);														\
+glBegin(GL_TRIANGLE_FAN);														\
 glTexCoord2f(flips[flip][0][0],flips[flip][0][1]);							\
 glVertex3f(((sx+1) * TILE_SIZE_OBJ), ((sy+1) * TILE_SIZE_OBJ), 0.0f);						\
 glTexCoord2f(flips[flip][1][0],flips[flip][1][1]);							\
@@ -768,7 +768,7 @@ static void draw_scroll2_planes(void) {
                 int sy = ty-8;
                 
                 // draw_gl_tile:
-                glBegin(GL_POLYGON);
+                glBegin(GL_TRIANGLE_FAN);
                 glTexCoord2f(flips[flip][0][0],flips[flip][0][1]);
                 glVertex3f(((sx+1) * size), ((sy+1) * size), zTop);
                 glTexCoord2f(flips[flip][1][0],flips[flip][1][1]);
@@ -830,7 +830,37 @@ int dummyScr1 = 0;
 
 void gfx_glut_drawgame(void) {
 	GLfloat gShapeSize = 11.0f;
-	
+
+	if (gemuCacheClear) {
+		gemu_clear_cache();
+	}
+
+#ifdef __EMSCRIPTEN__
+	/* 2D ortho setup for Emscripten — game is 2D, skip 3D camera */
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	/* Tile coords: scroll3 uses -6..+6 x, -4..+4 y at TILE_SIZE 1.0
+	   scroll2/obj uses -12..+12 x, -8..+8 y at TILE_SIZE 0.5
+	   scroll1 uses -24..+24 x, -16..+16 y at TILE_SIZE 0.25
+	   All produce ~same world extent. Use ortho matching that. */
+	glOrtho(-6.5, 6.5, 4.5, -4.5, -1.0, 1.0);  /* Y flipped for screen coords */
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+    finish = clock();
+	duration += (double)(finish - start) / CLOCKS_PER_SEC;
+	frames++;
+	FPS = frames / duration;
+	start = clock();
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+#else
 	GLdouble xmin, xmax, ymin, ymax;
 	// far frustum plane
 	GLdouble zFar = -gCamera.viewPos.z + 15;		// was 8
@@ -838,11 +868,7 @@ void gfx_glut_drawgame(void) {
 	GLdouble zNear = MIN (-gCamera.viewPos.z - gShapeSize * 0.5, 1.0);
 	// window aspect ratio
 	GLdouble aspect = gCamera.screenWidth / (GLdouble)gCamera.screenHeight;
-	
-	if (gemuCacheClear) {
-		gemu_clear_cache();
-	}
-		
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	if (aspect > 1.0) {
@@ -857,26 +883,24 @@ void gfx_glut_drawgame(void) {
 		ymax = xmax / aspect;
 	}
 	glFrustum(xmin, xmax, ymin, ymax, zNear, zFar);
-	
-	
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	
+
 	gluLookAt (gCamera.viewPos.x, gCamera.viewPos.y, gCamera.viewPos.z,
 			   gCamera.viewPos.x + gCamera.viewDir.x,
 			   gCamera.viewPos.y + gCamera.viewDir.y,
 			   gCamera.viewPos.z + gCamera.viewDir.z,
 			   gCamera.viewUp.x, gCamera.viewUp.y ,gCamera.viewUp.z);
-	
+
 	glRotatef (gTrackBallRotation[0], gTrackBallRotation[1], gTrackBallRotation[2], gTrackBallRotation[3]);
 	glRotatef (gWorldRotation[0], gWorldRotation[1], gWorldRotation[2], gWorldRotation[3]);
-	
+
 	GLfloat lightPosition[] = {lightX, 1, 3, 0.0};
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-	
 	glEnable(GL_LIGHTING);
 	glEnable(GL_BLEND);
-	
+
     finish = clock();
 	duration += (double)(finish - start) / CLOCKS_PER_SEC;
 	frames++;
@@ -884,35 +908,42 @@ void gfx_glut_drawgame(void) {
 	start = clock();
 
 	glScalef(0.3, -0.3, 0.3);
-	
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// clear the surface
-	glClear (GL_COLOR_BUFFER_BIT);
 
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear (GL_COLOR_BUFFER_BIT);
+#endif
+
+#ifndef __EMSCRIPTEN__
 	if (enable_lighting) {
 		glEnable(GL_LIGHTING);
 	} else {
 		glDisable(GL_LIGHTING);
 	}
-	
+#endif
+
 	glEnable(GL_BLEND);
 	if (showTextures) {
 		glEnable(GL_TEXTURE_2D);
 	} else {
 		glDisable(GL_TEXTURE_2D);
 	}
-	
+
+#ifndef __EMSCRIPTEN__
 	glEnable(GL_COLOR_MATERIAL);
+#endif
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	
+
+#ifndef __EMSCRIPTEN__
 	if (texture_mode) {
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	} else {
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
+#endif
     
     SCROLL[(g.CPS.DispEna >>   6) & 3]();
 	SCROLL[(g.CPS.DispEna >>   8) & 3]();
@@ -1111,13 +1142,15 @@ void drawGLText(recCamera cam) {
 }
 
 void drawGLString(GLfloat x, GLfloat y, char *string){
+#ifndef __EMSCRIPTEN__
 	int len, i;
-	
+
 	glRasterPos2f(x, y);
 	len = (int) strlen(string);
 	for (i = 0; i < len; i++) {
 		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[i]);
 	}
+#endif
 }
 
 #pragma mark Trackball handling

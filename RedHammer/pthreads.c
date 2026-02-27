@@ -7,11 +7,8 @@
  *
  */
 
-
-#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdio.h>
 
 #include "sf2const.h"
@@ -20,9 +17,108 @@
 
 extern struct executive_t Exec;
 
-void *RHThreadWorker(void *arg);	
-
 #define NTHREADS MAX_TASKS
+
+#ifdef __EMSCRIPTEN__
+
+/*
+ * Emscripten fiber-based cooperative multitasking.
+ * Replaces pthreads with single-threaded coroutines via Asyncify stack switching.
+ * This matches how the original 68000 arcade hardware worked.
+ */
+
+#include <emscripten/fiber.h>
+#include <setjmp.h>
+
+#define FIBER_STACK_SIZE  65536
+#define ASYNCIFY_BUF_SIZE 8192
+
+static emscripten_fiber_t main_fiber;
+static emscripten_fiber_t task_fibers[NTHREADS];
+static char fiber_c_stacks[NTHREADS][FIBER_STACK_SIZE];
+static char fiber_asyncify_stacks[NTHREADS][ASYNCIFY_BUF_SIZE];
+static char main_asyncify_stack[ASYNCIFY_BUF_SIZE];
+static int fiber_alive[NTHREADS];
+static int fiber_kill_flag[NTHREADS];
+
+static void fiber_entry(void *arg) {
+    Task *task = (Task *)arg;
+    if (task->code) {
+        task->code();
+    }
+    task->status = TASK_EMPTY;
+    fiber_alive[task->RHThreadID] = 0;
+    emscripten_fiber_swap(&task_fibers[task->RHThreadID], &main_fiber);
+}
+
+void RHWait(Task *task) {
+    /* Yield back to the dispatcher */
+    emscripten_fiber_swap(&task_fibers[task->RHThreadID], &main_fiber);
+
+    /* Check kill flag after being resumed */
+    if (fiber_kill_flag[task->RHThreadID]) {
+        fiber_kill_flag[task->RHThreadID] = 0;
+        task->status = TASK_EMPTY;
+        fiber_alive[task->RHThreadID] = 0;
+        emscripten_fiber_swap(&task_fibers[task->RHThreadID], &main_fiber);
+    }
+}
+
+void RHCleanup(Task *task) {
+    /* no-op for fibers */
+}
+
+void RHExit(Task *task) {
+    task->status = TASK_EMPTY;
+    fiber_alive[task->RHThreadID] = 0;
+    emscripten_fiber_swap(&task_fibers[task->RHThreadID], &main_fiber);
+}
+
+void RHKill(Task *task) {
+    fiber_kill_flag[task->RHThreadID] = 1;
+}
+
+void RHResume(Task *task) {
+    if (!fiber_alive[task->RHThreadID]) return;
+    /* Swap to the task fiber; it swaps back when it yields */
+    emscripten_fiber_swap(&main_fiber, &task_fibers[task->RHThreadID]);
+}
+
+void RHCreateThread(int worker) {
+    emscripten_fiber_init(
+        &task_fibers[worker],
+        fiber_entry,
+        &Exec.Tasks[worker],
+        fiber_c_stacks[worker],
+        FIBER_STACK_SIZE,
+        fiber_asyncify_stacks[worker],
+        ASYNCIFY_BUF_SIZE
+    );
+    fiber_alive[worker] = 1;
+    fiber_kill_flag[worker] = 0;
+}
+
+void RHInitThreads(void) {
+    printf("RedHammer: fibers init\n");
+    emscripten_fiber_init_from_current_context(
+        &main_fiber,
+        main_asyncify_stack,
+        ASYNCIFY_BUF_SIZE
+    );
+    for (int i = 0; i < NTHREADS; i++) {
+        Exec.Tasks[i].RHThreadID = i;
+        fiber_alive[i] = 0;
+        fiber_kill_flag[i] = 0;
+    }
+    Exec.FreeTasks = 8;
+}
+
+#else /* native pthreads */
+
+#include <pthread.h>
+#include <unistd.h>
+
+void *RHThreadWorker(void *arg);
 
 #define errexit(code, str)							\
   fprintf(stderr, "%s: %s\n",(str),strerror(code));	\
@@ -44,15 +140,14 @@ char pt_go_task[NTHREADS];
 
 void RHWait(Task *task) {
 	int state;
-	// todo: learn to use signals
 	//printf("RHWait: worker %d waits (%s)\n", task->RHThreadID, task->signal);
 	pthread_mutex_lock(&ptmx_despatcher);
 	InChild = FALSE;
 	pthread_mutex_unlock(&ptmx_despatcher);
-	
+
 	pthread_mutex_lock(&ptmx_go_task);
 	pthread_cond_broadcast(&ptcv_despatcher);
-	
+
 	pt_go_task[task->RHThreadID] = FALSE;
 
 	while (!pt_go_task[task->RHThreadID]) {
@@ -65,7 +160,7 @@ void RHWait(Task *task) {
 	pthread_mutex_unlock(&ptmx_go_task);
 	if (state == -1) {
 		printf("killed\n");
-		
+
 		pthread_exit(NULL);
 	}
 	//printf("RHWait: worker %d awakens\n", task->RHThreadID);
@@ -78,7 +173,7 @@ void RHExit(Task *task) {
 	pthread_mutex_lock(&ptmx_go_task);
 	pt_go_task[task->RHThreadID] = FALSE;
 	pthread_mutex_unlock(&ptmx_go_task);
-	
+
 	pthread_mutex_lock(&ptmx_despatcher);
 	InChild = FALSE;
 	pthread_cond_broadcast(&ptcv_despatcher);
@@ -87,21 +182,21 @@ void RHExit(Task *task) {
 	pthread_exit(NULL);
 }
 void RHKill (Task *task) {
-	
+
 //	if(pthread_cancel(pt_threads[task->RHThreadID])) {
 //		printf("error cancelling task %x",task);
 //	}
-	pthread_mutex_lock(&ptmx_go_task);	
+	pthread_mutex_lock(&ptmx_go_task);
 	pt_go_task[task->RHThreadID] = -1;
 	pthread_cond_broadcast(&ptcv_go_task);
 	pthread_mutex_unlock(&ptmx_go_task);
-	
+
 }
 void RHResume(Task *task) {
 	pthread_mutex_lock(&ptmx_despatcher);
 	InChild = TRUE;
-	
-	pthread_mutex_lock(&ptmx_go_task);	
+
+	pthread_mutex_lock(&ptmx_go_task);
 	pt_go_task[task->RHThreadID] = TRUE;
 	pthread_cond_broadcast(&ptcv_go_task);
 	pthread_mutex_unlock(&ptmx_go_task);
@@ -136,7 +231,7 @@ void RHInitThreads(void) {
 	pthread_cond_init (&ptcv_go_task, NULL);
 	pthread_mutex_init(&ptmx_despatcher, NULL);
 	pthread_cond_init(&ptcv_despatcher, NULL);
-	
+
 	Exec.FreeTasks = 8;
 }
 void *RHThreadWorker(void *arg) {
@@ -147,7 +242,7 @@ void *RHThreadWorker(void *arg) {
 		pthread_cond_wait(&ptcv_go_task, &ptmx_go_task);
 	}
 	pthread_mutex_unlock(&ptmx_go_task);
-	
+
 	//printf("RHThreadWorker worker %d %s beginning\n", task->RHThreadID, task->name);
 	if(task->code) {
 		task->code();
@@ -160,7 +255,7 @@ void *RHThreadWorker(void *arg) {
 	pthread_mutex_lock(&ptmx_go_task);
 	pt_go_task[task->RHThreadID] = FALSE;
 	pthread_mutex_unlock(&ptmx_go_task);
-	
+
 	//printf("RHThreadWorker worker %d ends\n", task->RHThreadID);
 	pthread_mutex_lock(&ptmx_despatcher);
 	InChild = FALSE;
@@ -170,3 +265,5 @@ void *RHThreadWorker(void *arg) {
 	// return pointer to exit status if necessary
 	return NULL;
 }
+
+#endif

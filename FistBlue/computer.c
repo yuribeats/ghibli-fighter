@@ -675,7 +675,15 @@ static void comp_proc_stat(Player *ply) {		/* 2c242 process plstat */
 		}
 	}
 	/* 2c260 */
-	sub_select_2c28e[ply->mode1/2](ply);
+	{
+		int idx = ply->mode1/2;
+		if (idx < 0 || idx >= 11 || !sub_select_2c28e[idx]) {
+			printf("comp_proc_stat: bad mode1=%d (idx=%d), resetting\n", ply->mode1, idx);
+			ply->mode1 = PLSTAT_NORMAL;
+			idx = 0;
+		}
+		sub_select_2c28e[idx](ply);
+	}
 	
 	if (ply->mode0 == 2) {
 		if(ply->DizzyClearCnt){
@@ -767,7 +775,8 @@ static void comp_attack_plycallback (Player *ply) { /* 2cc58 */
 		PLCBCompAttackBalrog,
 		PLCBCompAttackVega,
 	};
-	data_2cc66[ply->FighterID](ply);	
+	if (ply->FighterID >= 0 && ply->FighterID < 12 && data_2cc66[ply->FighterID])
+		data_2cc66[ply->FighterID](ply);
 }
 
 #pragma mark ---- Comp NextAction ----

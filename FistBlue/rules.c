@@ -66,7 +66,7 @@ static void _KnockPlayerOut(Player *victim) {     /* 34ec player knocked out */
 
 void check_level_sequence(Player *ply) {		// 0x2e94 player %a3
 	int i=0;
-	
+
 	while (g.LevelScript[i+1] != 0x10) {
 		if (g.LevelScript[i+1] == ply->FighterID) {     // don't fight ourselves
 			g.LevelScript[i]   = -1;
@@ -538,9 +538,9 @@ static void boss_level_check (void) {			//2c1a
 }
 
 static void bonus_level_setup(short stage) {	// 2be6
-	g.OnBonusStage = TRUE;
-	g.CurrentStage = stage;
-	boss_level_check();
+	/* skip bonus stages - they have scoring bugs */
+	g.BonusDone++;
+	return;
 }
 
 void sub_2b7c(void) {

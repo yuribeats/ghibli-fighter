@@ -48,3 +48,5 @@ _deps
 CMakeUserPresets.json
 .cache
 FBTests/test-redhammer
+web_build/
+SF2.app/

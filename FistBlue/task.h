@@ -14,6 +14,10 @@
 
 #include "sf2types.h"
 
+#ifndef __STRING
+#define __STRING(x) #x
+#endif
+
 void task_timer(void);
 void sf2sleep(int duration);
 void exit_ready(void);

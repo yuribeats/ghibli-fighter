@@ -32,7 +32,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#ifndef __EMSCRIPTEN__
 #include <execinfo.h>
+#endif
 #endif
 
 #include "libdata.h"
@@ -128,11 +130,11 @@ static void sub_2af2(void) {
 #pragma SiennaBird glue
 
 void sf2_backtrace(int count) {
-#ifndef CPS
+#if !defined(CPS) && !defined(__EMSCRIPTEN__)
 	void *callstack[128];
 	int i, frames = backtrace(callstack, 128);
 	char** strs = backtrace_symbols(callstack, frames);
-    
+
     if (count && frames > (count-1)) {
         frames = count - 1;
     }
@@ -140,7 +142,7 @@ void sf2_backtrace(int count) {
 		printf("%s\n", strs[i]);
 	}
 	free(strs);
-    
+
 	exit(1);
 #endif
 }
@@ -153,7 +155,7 @@ void debughook(int data) {
 _Noreturn void FBPanic(int data) {
 	printf("PANIC()\n");
 
-#ifndef CPS
+#if !defined(CPS) && !defined(__EMSCRIPTEN__)
 	void *callstack[128];
 	int i, frames = backtrace(callstack, 128);
 	char** strs = backtrace_symbols(callstack, frames);
@@ -161,9 +163,8 @@ _Noreturn void FBPanic(int data) {
 		printf("%s\n", strs[i]);
 	}
 	free(strs);
-
-    abort();
 #endif
+    abort();
 }
 
 #pragma mark ---- Jumper Decoding ---

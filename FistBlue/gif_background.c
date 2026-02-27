@@ -500,5 +500,5 @@ void gif_bg_draw_title(void)
 
 int gif_bg_title_active(void)
 {
-    return title_bg.loaded && g.InDemo && g.mode0 != 0xa;
+    return title_bg.loaded && g.InDemo && g.mode0 == 0x2;
 }

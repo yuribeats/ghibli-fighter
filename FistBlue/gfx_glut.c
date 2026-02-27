@@ -161,9 +161,10 @@ static void draw_scroll2_or_gif(void) {
 	}
 }
 static void draw_scroll1_or_skip(void) {
-	if (gif_bg_charselect_active() || gif_bg_vs_screen_active() || gif_bg_title_active() || gif_bg_is_active()) {
+	if (gif_bg_charselect_active() || gif_bg_vs_screen_active() || gif_bg_is_active()) {
 		return;  /* full-screen background replaces all scroll layers */
 	}
+	/* title GIF: keep scroll1 for text overlay (PRESS START, FREE PLAY, etc.) */
 	draw_scroll1();
 }
 static void draw_scroll3_or_gif(void) {

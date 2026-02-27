@@ -19,6 +19,7 @@
 #include	"effects.h"
 #include	"demo.h"
 #include	"gif_background.h"
+#include	"music_player.h"
 #include "gemu.h"
 #include "sf2io.h"
 #include "endings.h"
@@ -627,6 +628,7 @@ static void gamemode_init_round (void) {
 		case 0:
 			DEBUG_SM("2/4/6/0 init_round");
 			NEXT(g.mode3);
+			g.GSInitComplete = FALSE;
 			LBResetState();
 			LBInitPlayers();		/* set player difficulties, initial energy */
 			break;
@@ -692,6 +694,12 @@ void gamemode_prefightanim (void){
 		FATALDEFAULT;
     }
     if(!g.PreRoundAnim) {
+        /* Wait for music to reach :20 before starting the fight */
+        if (music_player_elapsed() < 20.0) {
+            proc_all_actions();
+            DSDrawAllMain();
+            return;
+        }
         g.mode2 +=2;
         g.mode3 = 0;
     }

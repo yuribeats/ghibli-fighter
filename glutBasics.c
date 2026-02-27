@@ -234,12 +234,10 @@ static void render_controls_screen(void) {
 }
 
 void maindisplay(void) {
+    gfx_glut_drawgame();
     if (gControlsActive) {
         render_controls_screen();
-        glutSwapBuffers();
-        return;
     }
-    gfx_glut_drawgame();
     glutSwapBuffers();
 }
 

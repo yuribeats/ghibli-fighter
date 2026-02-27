@@ -15,6 +15,7 @@ mkdir -p "$APP/Contents/MacOS"
 mkdir -p "$APP/Contents/Resources/assets/music"
 
 cp "$PROJ/Info.plist"          "$APP/Contents/"
+cp "$PROJ/AppIcon.icns"        "$APP/Contents/Resources/" 2>/dev/null || true
 cp "$BUILD/glutBasics"         "$APP/Contents/MacOS/"
 cp "$BUILD/allroms.bin"        "$APP/Contents/Resources/"
 cp "$BUILD/sf2gfx.bin"         "$APP/Contents/Resources/"

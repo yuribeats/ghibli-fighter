@@ -14,8 +14,14 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
   touch-action: none;
+}
+body.touch {
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
 }
 canvas {
   display: block;
@@ -23,6 +29,12 @@ canvas {
   width: 100vw;
   height: 100vh;
   object-fit: contain;
+}
+body.touch canvas {
+  width: 96vw;
+  height: min(calc(96vw * 2 / 3), 42vh);
+  flex-shrink: 0;
+  margin-top: 6px;
 }
 #loading {
   position: absolute;
@@ -129,22 +141,22 @@ canvas {
 }
 #gamepad {
   display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 5;
-  pointer-events: none;
+  width: 100%;
+  flex: 1;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
+  pointer-events: none;
 }
 #gamepad > * { pointer-events: auto; }
 #gp-top {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
+  grid-column: 1 / -1;
   display: flex;
+  justify-content: center;
   gap: 24px;
+  padding: 10px 0;
 }
 .gp-btn {
   background: rgba(0,0,0,0.4);
@@ -167,22 +179,22 @@ canvas {
 }
 .gp-meta { padding: 8px 16px; }
 #gp-dpad {
-  position: absolute;
-  bottom: 20px;
-  left: 16px;
-  width: 120px;
-  height: 120px;
+  justify-self: center;
+  align-self: center;
+  position: relative;
+  width: 140px;
+  height: 140px;
   pointer-events: auto;
   touch-action: none;
 }
 .dpad-arrow {
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 46px;
+  height: 46px;
   background: rgba(0,0,0,0.4);
   border: 2px solid rgba(255,255,255,0.4);
   color: rgba(255,255,255,0.7);
-  font-size: 14px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -193,23 +205,22 @@ canvas {
   border-color: rgba(255,255,255,0.9);
   color: #fff;
 }
-.dpad-u { top: 0; left: 40px; }
-.dpad-d { bottom: 0; left: 40px; }
-.dpad-l { top: 40px; left: 0; }
-.dpad-r { top: 40px; right: 0; }
+.dpad-u { top: 0; left: 47px; }
+.dpad-d { bottom: 0; left: 47px; }
+.dpad-l { top: 47px; left: 0; }
+.dpad-r { top: 47px; right: 0; }
 #gp-attacks {
-  position: absolute;
-  bottom: 20px;
-  right: 16px;
+  justify-self: center;
+  align-self: center;
   display: grid;
-  grid-template-columns: repeat(3, 48px);
-  grid-template-rows: repeat(2, 48px);
-  gap: 5px;
+  grid-template-columns: repeat(3, 54px);
+  grid-template-rows: repeat(2, 54px);
+  gap: 6px;
 }
 .gp-atk {
-  width: 48px;
-  height: 48px;
-  font-size: 7px;
+  width: 54px;
+  height: 54px;
+  font-size: 8px;
 }
 </style>
 </head>
@@ -263,7 +274,7 @@ canvas {
       <div class="entry"><span class="key">1</span> START GAME</div>
     </div>
     <div style="margin-top:30px;font-size:12px;opacity:0.6;">MUSIC WILL PLAY</div>
-    <div id="blink">PRESS ANY KEY TO CONTINUE</div>
+    <div id="blink">TAP TO CONTINUE</div>
   </div>
 </div>
 <div id="gamepad">
@@ -327,7 +338,7 @@ window.onerror = function() {
       setTimeout(function() { c.style.display = 'none'; }, 500);
       document.getElementById('canvas').focus();
       var gp = document.getElementById('gamepad');
-      if (gp && 'ontouchstart' in window) gp.style.display = 'block';
+      if (gp && 'ontouchstart' in window) gp.style.display = 'grid';
     }
   }
   document.addEventListener('keydown', dismiss);
@@ -337,6 +348,7 @@ window.onerror = function() {
 // Touch gamepad
 (function() {
   if (!('ontouchstart' in window)) return;
+  document.body.classList.add('touch');
   var canvas = document.getElementById('canvas');
 
   function sendKey(type, keyCode, key) {

@@ -54,9 +54,10 @@ static void check_for_new_players(void) {		// 843e
 			a4->Continuing = FALSE;
 			new_fighter_id = a4->FighterSelect;
 		}
-		if (a3->FighterID == new_fighter_id) {		
+		if (a3->FighterID == new_fighter_id || new_fighter_id == 2) {
 			new_fighter_id++;
 			new_fighter_id &= 7;
+			if (new_fighter_id == 2) new_fighter_id = 3;
 		}
 		a4->FighterID       = new_fighter_id;
 		a4->Human           = TRUE;
@@ -123,8 +124,11 @@ static u16 _update_ply_cursor(Player *ply, Player *plb) {		// 84c6 ply in %a4, p
 	if ((newFighterID + d2 >= 0) && (newFighterID + d2) < (AVATARMENU_COLS * AVATARMENU_ROWS)) {
 		newFighterID += d2;
 	}
+	if (newFighterID == 1 || newFighterID == 2) {	/* skip E.Honda and Blanka */
+		newFighterID = oldFighterID;
+	}
 	if (plb->Human && plb->FighterID == newFighterID) {
-		newFighterID = oldFighterID;	// not same as orig
+		newFighterID = oldFighterID;
 	}
 	ply->FighterID = newFighterID;
 	return d6;

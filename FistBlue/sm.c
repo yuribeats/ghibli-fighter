@@ -181,6 +181,7 @@ static void game_mode_28(void) {	// 7af0
 				}
 
 			}
+			break;
 		case 4:
 			if (g.x02e0==0) {
 				NEXT(g.mode2)
@@ -230,6 +231,7 @@ static void game_mode_28(void) {	// 7af0
 					sub_7c50();
 				}
 			}
+			break;
 		case 10:
 			if (g.ContinueBits & 1 << g.PlyLostToComp ) {
 				NEXT(g.mode2)
@@ -249,6 +251,7 @@ static void game_mode_28(void) {	// 7af0
 				DSDrawAll_Hira();
 				soundsting(SOUND_CONTINUE);				
 			}
+			break;
 		case 12:
 			if (g.timer2-- == 0) {
 				NEXT(g.mode2);

@@ -31,6 +31,10 @@
 #include <pthread.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 extern Game g;
 struct executive_t Exec;
 
@@ -273,6 +277,9 @@ DESPATCH_STARTAGAIN:
 				Exec.Tasks[i].status=0;
 				printf("!!!: NULL task %d\n", i);
 			} else {
+#ifdef __EMSCRIPTEN__
+				EM_ASM({ window._sf2task=$0; }, i);
+#endif
 #ifdef CPS
 				switch (task.status) {
 					case 0x4:

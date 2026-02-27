@@ -228,9 +228,29 @@ body.touch canvas {
 <canvas id="canvas" width="832" height="576" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
 <div id="crash-msg" style="display:none;position:fixed;top:0;left:0;right:0;padding:12px;background:red;color:#fff;font:bold 11px monospace;z-index:999;word-break:break-all;"></div>
 <script>
-window.onerror=function(m){document.getElementById('crash-msg').style.display='block';document.getElementById('crash-msg').textContent='ERR: '+m;};
-window.onunhandledrejection=function(e){document.getElementById('crash-msg').style.display='block';document.getElementById('crash-msg').textContent='REJ: '+e.reason;};
-document.getElementById('canvas').addEventListener('webglcontextlost',function(e){e.preventDefault();document.getElementById('crash-msg').style.display='block';document.getElementById('crash-msg').textContent='WEBGL CONTEXT LOST';});
+(function(){
+  var cm=document.getElementById('crash-msg');
+  function showErr(msg){cm.style.display='block';cm.textContent=msg;}
+  window.onerror=function(m){showErr('ERR: '+m);};
+  window.onunhandledrejection=function(e){showErr('REJ: '+e.reason);};
+  document.getElementById('canvas').addEventListener('webglcontextlost',function(e){e.preventDefault();showErr('WEBGL CONTEXT LOST');});
+  window._sf2hb=0; window._sf2phase=-1;
+  var lastHb=0, stuckCount=0;
+  setInterval(function(){
+    var hb=window._sf2hb||0;
+    if(hb>0 && hb===lastHb){
+      stuckCount++;
+      if(stuckCount>=2){
+        var ph=window._sf2phase, tk=window._sf2task;
+        var where=ph===0?'STUCK IN task_timer (task='+tk+')':ph===1?'STUCK IN gif_bg_update':ph===2?'completed but never re-entered':'unknown phase '+ph;
+        showErr('FREEZE hb='+hb+' p='+ph+' t='+tk+': '+where);
+      }
+    } else {
+      stuckCount=0;
+    }
+    lastHb=hb;
+  },2000);
+})();
 </script>
 <div id="loading">
   <div>LOADING</div>

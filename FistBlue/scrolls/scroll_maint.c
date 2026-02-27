@@ -13,6 +13,7 @@
 #include "scroll_data.h"
 #include "gstate.h"
 #include "gemu.h"
+#include "gif_background.h"
 
 extern ScrollState gstate_Scroll1;
 extern ScrollState gstate_Scroll2;
@@ -268,7 +269,8 @@ void GSMaintScroll2(ScrollState *gstate){      /* 831ca was nextlevel_dosetups *
                     GSStageScroll1(g.CurrentStage);
                     GSStageScroll2(g.CurrentStage);
                     GSStageScroll3(g.CurrentStage);
-                    
+                    gif_bg_load_stage(g.CurrentStage);
+
                     GSInitDimensions();
                     GSInitUpdateMethods();
                     GSInitDispEna();

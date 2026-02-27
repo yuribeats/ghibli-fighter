@@ -397,6 +397,8 @@ int main(int argc, const char * argv[])
     gif_bg_init();
     char_overlay_init();
     gif_bg_load_charselect();
+    gif_bg_load_vs_screen();
+    gif_bg_load_title();
     atexit(music_player_stop);
     music_player_play("./assets/music/redrumlake.25minutes.mp3");
 

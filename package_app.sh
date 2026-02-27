@@ -23,6 +23,6 @@ cp -R "$BUILD/assets/backgrounds" "$APP/Contents/Resources/assets/"
 cp -R "$BUILD/assets/heads"       "$APP/Contents/Resources/assets/"
 cp -R "$BUILD/assets/arms"        "$APP/Contents/Resources/assets/"
 cp -R "$BUILD/assets/legs"        "$APP/Contents/Resources/assets/"
-cp "$HOME/Desktop/Gimme_The_Loot_Loot_Mix.mp3" "$APP/Contents/Resources/assets/music/"
+cp "/Users/yurirybak/Library/Containers/com.apple.MobileSMS/Data/tmp/TemporaryItems/com.apple.MobileSMS/Media/C6455D5D-1744-45B4-BA27-39EFD05967AC/redrumlake.25minutes.mp3" "$APP/Contents/Resources/assets/music/"
 
 echo "Done: $APP"

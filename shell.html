@@ -226,6 +226,12 @@ body.touch canvas {
 </head>
 <body>
 <canvas id="canvas" width="832" height="576" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+<div id="crash-msg" style="display:none;position:fixed;top:0;left:0;right:0;padding:12px;background:red;color:#fff;font:bold 11px monospace;z-index:999;word-break:break-all;"></div>
+<script>
+window.onerror=function(m){document.getElementById('crash-msg').style.display='block';document.getElementById('crash-msg').textContent='ERR: '+m;};
+window.onunhandledrejection=function(e){document.getElementById('crash-msg').style.display='block';document.getElementById('crash-msg').textContent='REJ: '+e.reason;};
+document.getElementById('canvas').addEventListener('webglcontextlost',function(e){e.preventDefault();document.getElementById('crash-msg').style.display='block';document.getElementById('crash-msg').textContent='WEBGL CONTEXT LOST';});
+</script>
 <div id="loading">
   <div>LOADING</div>
   <div class="bar"><div class="fill" id="progress"></div></div>

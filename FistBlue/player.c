@@ -131,15 +131,17 @@ static void apply_throw_damage(Player *ply, Player *opp_a3, short index) {		///0
     opp_a3->UndealtDamage = dr.damage;
     opp_a3->RewardID = dr.d5;             /* score reward */
     if (g.FastEndingFight == 0 && g.OnBonusStage == 0) {
-        if(opp_a3->Energy >= dr.damage) { return; }
+        if(opp_a3->Energy < dr.damage) { return; }
 
-        /* throw will KO - play sound and start time warp,
-           but let UndealtDamage apply naturally during tumble landing */
+        /* player is knocked out */
         if(opp_a3->FighterID == FID_CHUN_LI) {
             queuesound(SOUND_KO_FEMALE);
         } else {
             queuesound(SOUND_KO_MALE);
         }
+        opp_a3->Energy        = -1;
+        opp_a3->UndealtDamage = 0;
+
         QueueEffect(opp_a3->RewardID, opp_a3->Side ^ 1);
 		LBStartTimeWarp();
     } else {
@@ -157,7 +159,7 @@ int _EnergyDamageAdjust(Player *ply, int damage) {			// 3640 change to globals
 
 void LBGetDamage(Player *ply, Player *opp, int index) {	/* 0x35c0 */
 	/* XXX modify to return struct */
-    if((index & 0x7f) < 0x20) {
+    if((index & 0x7f) >= 0x20) {
         dr.damage = data_99324[index/2][ply->Difficulty];
         dr.d5     = data_99544[index/2];
     } else {

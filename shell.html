@@ -357,12 +357,7 @@ window.onerror = function() {
   document.body.classList.add('touch');
   var canvas = document.getElementById('canvas');
 
-  var sent = {};
   function sendKey(type, keyCode, key) {
-    var id = type[3] + keyCode;
-    if (sent[id]) return;
-    sent[id] = 1;
-    requestAnimationFrame(function() { delete sent[id]; });
     canvas.dispatchEvent(new KeyboardEvent(type, {
       keyCode: keyCode, which: keyCode, key: key,
       bubbles: true, cancelable: true

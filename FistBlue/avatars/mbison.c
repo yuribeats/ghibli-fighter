@@ -181,6 +181,7 @@ static void sub_36318(Player *ply) {
 					} else {
 						PLAYERTICK;
 					}
+					break;
 				FATALDEFAULT;
 			}
 			break;
@@ -195,6 +196,7 @@ static void sub_36318(Player *ply) {
 				case 2:			sub_365da(ply);  break;
 				FATALDEFAULT;
 			}
+			break;
 		FATALDEFAULT;
 	}
 }
@@ -474,6 +476,7 @@ static void sub_3645e(Player *ply) {
 					break;
 				FATALDEFAULT;
 			}
+			break;
 		case 4:		// 36508
 			switch (ply->mode2) {
 				case 0:
@@ -505,6 +508,7 @@ static void sub_3645e(Player *ply) {
 					break;
 				FATALDEFAULT;
 			}
+			break;
 		FATALDEFAULT;
 	}
 }
@@ -549,6 +553,7 @@ void PLCBCompAttackMBison(Player *ply) {
 						case 2:		sub_365da(ply);	break;
 						FATALDEFAULT;
 					}
+					break;
 				FATALDEFAULT;
 			}
 		}

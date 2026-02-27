@@ -150,6 +150,8 @@ static void draw_object(void);
 static void draw_scroll2_or_gif(void) {
 	if (gif_bg_charselect_active()) {
 		gif_bg_draw_charselect();
+	} else if (gif_bg_vs_screen_active()) {
+		gif_bg_draw_vs_screen();
 	} else if (gif_bg_is_active()) {
 		gif_bg_draw();
 	} else {
@@ -157,7 +159,7 @@ static void draw_scroll2_or_gif(void) {
 	}
 }
 static void draw_scroll3_or_gif(void) {
-	if (gif_bg_charselect_active() || gif_bg_is_active()) {
+	if (gif_bg_charselect_active() || gif_bg_vs_screen_active() || gif_bg_is_active()) {
 		return;  /* background replaces both scroll layers */
 	}
 	draw_scroll3();
@@ -274,6 +276,8 @@ void gemu_cache_scroll1(u16 tile, short palette) {
 		glBindTexture(GL_TEXTURE_2D, TC.text_scr1[tile][0]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, tempmap);
 	} else {
 		glBindTexture(GL_TEXTURE_2D, TC.text_scr1[tile][0]);
@@ -296,6 +300,8 @@ void gemu_cache_scroll2(u16 tile, short palette) {
 		glBindTexture(GL_TEXTURE_2D, TC.text_scr2[tile][0]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, tempmap);
 	} else {
 		glBindTexture(GL_TEXTURE_2D, TC.text_scr2[tile][0]);
@@ -318,6 +324,8 @@ void gemu_cache_scroll3(u16 tile, short palette) {
 		glBindTexture(GL_TEXTURE_2D, TC.text_scr3[tile][0]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 32, 32, 0, GL_RGBA, GL_UNSIGNED_BYTE, tempmap);
 	} else {
 		glBindTexture(GL_TEXTURE_2D, TC.text_scr3[tile][0]);
@@ -340,6 +348,8 @@ void gemu_cache_object(u16 tile, short palette) {
 		glBindTexture(GL_TEXTURE_2D, TC.text_obj[tile][0]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, tempmap);
 	} else {
 		glBindTexture(GL_TEXTURE_2D, TC.text_obj[tile][0]);

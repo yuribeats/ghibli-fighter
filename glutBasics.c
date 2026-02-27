@@ -234,9 +234,10 @@ static void render_controls_screen(void) {
 }
 
 void maindisplay(void) {
-    gfx_glut_drawgame();
     if (gControlsActive) {
         render_controls_screen();
+    } else {
+        gfx_glut_drawgame();
     }
     glutSwapBuffers();
 }
@@ -271,7 +272,7 @@ void mouseMotion(int x, int y) {
 }
 
 void special(int key, int px, int py) {
-    if (gControlsActive) { gControlsFading = 1; return; }
+    if (gControlsActive) { gControlsFading = 1; }
     switch (key) {
         case GLUT_KEY_UP:		gInputs.p10 |= JOY_UP;    break;
         case GLUT_KEY_DOWN:		gInputs.p10 |= JOY_DOWN;  break;
@@ -308,7 +309,7 @@ void keyup(unsigned char inkey, int px, int py) {
     
 void key(unsigned char inkey, int px, int py){
     if (inkey == 27) { exit(0); }
-    if (gControlsActive) { gControlsFading = 1; return; }
+    if (gControlsActive) { gControlsFading = 1; }
     switch (inkey) {
         case 'q': case 'Q':		gInputs.p10 |=  BUTTON_A;	   break;
         case 'w': case 'W':		gInputs.p10 |=  BUTTON_B;	   break;

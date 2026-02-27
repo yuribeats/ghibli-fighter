@@ -335,9 +335,12 @@ void key(unsigned char inkey, int px, int py){
 }
 
 void timerFunc(int value) {
+    task_timer();
+    gif_bg_update();
+
     if (gControlsActive) {
         gControlsTimer++;
-        if (gControlsTimer >= 250) {
+        if (gControlsTimer >= 833) {
             gControlsFading = 1;
         }
         if (gControlsFading) {
@@ -347,12 +350,7 @@ void timerFunc(int value) {
                 gControlsActive = 0;
             }
         }
-        glutPostRedisplay();
-        glutTimerFunc(time_wait, timerFunc, 0);
-        return;
     }
-    task_timer();
-    gif_bg_update();
 
     glutPostRedisplay();
     glutTimerFunc(time_wait, timerFunc, 0);

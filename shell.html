@@ -234,18 +234,13 @@ body.touch canvas {
   window.onerror=function(m){showErr('ERR: '+m);};
   window.onunhandledrejection=function(e){showErr('REJ: '+e.reason);};
   document.getElementById('canvas').addEventListener('webglcontextlost',function(e){e.preventDefault();showErr('WEBGL CONTEXT LOST');});
-  window._sf2hb=0; window._sf2phase=-1;
+  window._sf2hb=0;
   var lastHb=0, stuckCount=0;
   setInterval(function(){
     var hb=window._sf2hb||0;
     if(hb>0 && hb===lastHb){
       stuckCount++;
-      if(stuckCount>=2){
-        var ph=window._sf2phase, tk=window._sf2task;
-        var tg=window._tg||0;
-        var where=ph===0?'task_timer task='+tk+' _tg='+tg+' m0='+((window._sm||'?')):ph===1?'gif_bg_update':ph===2?'never re-entered':'phase='+ph;
-        showErr('FREEZE hb='+hb+': '+where);
-      }
+      if(stuckCount>=2) showErr('FREEZE hb='+hb);
     } else {
       stuckCount=0;
     }

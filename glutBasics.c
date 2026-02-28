@@ -350,16 +350,10 @@ void key(unsigned char inkey, int px, int py){
 
 void timerFunc(int value) {
 #ifdef __EMSCRIPTEN__
-    EM_ASM({ window._sf2hb=(window._sf2hb||0)+1; window._sf2phase=0; });
+    EM_ASM({ window._sf2hb=(window._sf2hb||0)+1; });
 #endif
     task_timer();
-#ifdef __EMSCRIPTEN__
-    EM_ASM({ window._sf2phase=1; });
-#endif
     gif_bg_update();
-#ifdef __EMSCRIPTEN__
-    EM_ASM({ window._sf2phase=2; });
-#endif
 
     if (gControlsActive) {
         gControlsTimer++;

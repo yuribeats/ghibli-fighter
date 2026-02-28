@@ -27,10 +27,6 @@
 
 #include <stdio.h>
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#endif
-
 #define DEBUG_SM(string) \
 do { if (FISTBLUE_DEBUG_SM) fprintf(stderr, "%s:%d:%s():%s\n","SM", \
 __LINE__, __func__, string); } while (0)
@@ -148,11 +144,6 @@ static void sub_7c50(void) {
 static void game_mode_28(void) {	// 7af0
 	Object *obj;
 	Player *ply;
-	static int last_mode2 = -1;
-	if (g.mode2 != last_mode2) {
-		printf("game_mode_28: mode2=%d AllowCont=%d ContBits=%x\n", g.mode2, g.AllowContinue, g.ContinueBits);
-		last_mode2 = g.mode2;
-	}
 	switch (g.mode2) {
 		case 0:
 			NEXT(g.mode2);
@@ -335,8 +326,7 @@ static void sub_7dca(void) {		// 7dca game mode 2,A
 			break;
 		case 6:
 			if(g.timer3--==0) {
-				printf("sub_7dca: game over done, returning to attract\n");
-				g.x02eb = 0;
+		g.x02eb = 0;
 				g.mode0=g.mode1=g.mode2=g.mode3=g.mode4 = 0;
 				task_kill(3);
 				create_task(task_attractSequence, 1, 0, 0, 0);
@@ -400,9 +390,6 @@ static void sub_7eb4(void) {		// 7eb4 game mode 2,C
 }
 
 void SM_game (void) {			/* 76e0 */
-#ifdef __EMSCRIPTEN__
-    EM_ASM({ window._sm=$0+'/'+$1+'/'+$2; }, g.mode0, g.mode1, g.mode2);
-#endif
     switch (g.mode0) {
     case 0:
         g.mode0 += 2;

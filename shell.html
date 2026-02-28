@@ -478,24 +478,50 @@ window.addEventListener('unhandledrejection', function(e) {
     });
   })(btns[b]);
 })();
-// Volume control
+// Volume control — uses Web Audio API GainNode for iOS compatibility
 (function() {
   var vol = parseFloat(localStorage.getItem('sf2vol') || '0.5');
   var _audio = null;
+  var audioCtx = null;
+  var gainNode = null;
+  var connectedAudio = null;
+
+  function ensureCtx() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      gainNode = audioCtx.createGain();
+      gainNode.gain.value = vol;
+      gainNode.connect(audioCtx.destination);
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function connectAudio(el) {
+    if (!el || el === connectedAudio) return;
+    ensureCtx();
+    try {
+      var src = audioCtx.createMediaElementSource(el);
+      src.connect(gainNode);
+      connectedAudio = el;
+    } catch(e) { /* already connected */ }
+  }
+
   Object.defineProperty(window, '_sf2audio', {
     get: function() { return _audio; },
     set: function(v) {
       _audio = v;
-      if (v && typeof v.volume !== 'undefined') v.volume = vol;
+      if (v) connectAudio(v);
     },
     configurable: true
   });
+
   var hud = document.createElement('div');
   hud.style.cssText = 'position:fixed;top:10px;right:10px;color:#fff;font-family:"Press Start 2P",monospace;font-size:10px;z-index:99;opacity:0;transition:opacity 0.3s;pointer-events:none;text-shadow:1px 1px 2px #000;';
   document.body.appendChild(hud);
   var hideTimer;
   function applyVol() {
-    if (_audio) _audio.volume = vol;
+    if (gainNode) gainNode.gain.value = vol;
+    if (_audio) try { _audio.volume = vol; } catch(e) {}
     localStorage.setItem('sf2vol', String(vol));
   }
   function showVol() {
@@ -513,6 +539,15 @@ window.addEventListener('unhandledrejection', function(e) {
     if (e.key === '-' || e.key === '_') adjVol(-0.05);
     else if (e.key === '=' || e.key === '+') adjVol(0.05);
   });
+  // Init AudioContext on first user gesture (required by browsers)
+  function initOnGesture() {
+    ensureCtx();
+    document.removeEventListener('touchstart', initOnGesture);
+    document.removeEventListener('click', initOnGesture);
+  }
+  document.addEventListener('touchstart', initOnGesture, {passive: true});
+  document.addEventListener('click', initOnGesture);
+
   var vu = document.getElementById('gp-volup');
   var vd = document.getElementById('gp-voldn');
   function volHandler(delta) {

@@ -296,6 +296,8 @@ body.touch canvas {
     <div class="section">
       <div class="entry"><span class="key">5</span> INSERT COIN</div>
       <div class="entry"><span class="key">1</span> START GAME</div>
+      <div class="entry"><span class="key">-</span> VOL DOWN</div>
+      <div class="entry"><span class="key">=</span> VOL UP</div>
     </div>
     <div style="margin-top:30px;font-size:12px;opacity:0.6;">MUSIC WILL PLAY</div>
     <div id="blink">TAP TO CONTINUE</div>
@@ -303,8 +305,10 @@ body.touch canvas {
 </div>
 <div id="gamepad">
   <div id="gp-top">
+    <div class="gp-btn gp-meta" id="gp-voldn" style="font-size:10px;">VOL -</div>
     <div class="gp-btn gp-meta" data-kc="53" data-key="5">COIN</div>
     <div class="gp-btn gp-meta" data-kc="49" data-key="1">START</div>
+    <div class="gp-btn gp-meta" id="gp-volup" style="font-size:10px;">VOL +</div>
   </div>
   <div id="gp-dpad">
     <div class="dpad-arrow dpad-u">&#9650;</div>
@@ -471,6 +475,47 @@ window.onerror = function() {
       btn.classList.remove('pressed');
     });
   })(btns[b]);
+})();
+// Volume control
+(function() {
+  var vol = parseFloat(localStorage.getItem('sf2vol') || '1');
+  var hud = document.createElement('div');
+  hud.id = 'vol-hud';
+  hud.style.cssText = 'display:none;position:fixed;top:8px;right:8px;color:#fff;font:bold 10px "Press Start 2P",monospace;z-index:50;text-transform:uppercase;letter-spacing:2px;opacity:0.8;';
+  document.body.appendChild(hud);
+  var hideTimer;
+  function applyVol() {
+    if (window._sf2audio) window._sf2audio.volume = vol;
+    localStorage.setItem('sf2vol', vol);
+  }
+  function showVol() {
+    var bars = Math.round(vol * 10);
+    var s = 'VOL ';
+    for (var i = 0; i < 10; i++) s += i < bars ? '\u2588' : '\u2591';
+    hud.textContent = s;
+    hud.style.display = 'block';
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(function() { hud.style.display = 'none'; }, 1500);
+  }
+  function changeVol(delta) {
+    vol = Math.max(0, Math.min(1, Math.round((vol + delta) * 10) / 10));
+    applyVol();
+    showVol();
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === '=' || e.key === '+') { changeVol(0.1); }
+    else if (e.key === '-' || e.key === '_') { changeVol(-0.1); }
+  });
+  // Apply saved volume when audio starts
+  var origPlay = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'src');
+  setInterval(function() { applyVol(); }, 500);
+  // Expose for mobile
+  window._sf2volUp = function() { changeVol(0.1); };
+  window._sf2volDown = function() { changeVol(-0.1); };
+  var vu = document.getElementById('gp-volup');
+  var vd = document.getElementById('gp-voldn');
+  if (vu) vu.addEventListener('touchstart', function(e) { e.preventDefault(); window._sf2volUp(); }, {passive:false});
+  if (vd) vd.addEventListener('touchstart', function(e) { e.preventDefault(); window._sf2volDown(); }, {passive:false});
 })();
 </script>
 {{{ SCRIPT }}}

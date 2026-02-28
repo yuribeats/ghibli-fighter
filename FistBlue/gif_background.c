@@ -309,6 +309,55 @@ void gif_bg_draw_charselect(void)
     glPopMatrix();
 }
 
+void gif_bg_draw_charselect_mask(void)
+{
+    if (!cs_bg.loaded || !cs_bg.texture)
+        return;
+
+    /* Draw the charselect PNG everywhere EXCEPT a hole for Ryu/Ken.
+     * Hole: left portion x(-6.5, -1.5) y(-3.5, 1.5)
+     * where col 0 grid thumbnails + left side portrait are.
+     * Three quads: top strip, bottom strip, right block. */
+
+    float hx = -1.5f;
+    float hy_top = -3.5f;
+    float hy_bot =  1.5f;
+
+    glPushMatrix();
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, cs_bg.texture);
+    glColor3f(1.0f, 1.0f, 1.0f);
+
+    /* UV: u = (gl_x + 6.5) / 13.0, v = (gl_y + 4.5) / 9.0 */
+
+    /* Top strip: full width, above the hole */
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f);                                    glVertex3f(-6.5f, -4.5f, 0.0f);
+    glTexCoord2f(1.0f, 0.0f);                                    glVertex3f( 6.5f, -4.5f, 0.0f);
+    glTexCoord2f(1.0f, (hy_top + 4.5f) / 9.0f);                  glVertex3f( 6.5f, hy_top, 0.0f);
+    glTexCoord2f(0.0f, (hy_top + 4.5f) / 9.0f);                  glVertex3f(-6.5f, hy_top, 0.0f);
+    glEnd();
+
+    /* Bottom strip: full width, below the hole */
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, (hy_bot + 4.5f) / 9.0f);                  glVertex3f(-6.5f, hy_bot, 0.0f);
+    glTexCoord2f(1.0f, (hy_bot + 4.5f) / 9.0f);                  glVertex3f( 6.5f, hy_bot, 0.0f);
+    glTexCoord2f(1.0f, 1.0f);                                    glVertex3f( 6.5f,  4.5f, 0.0f);
+    glTexCoord2f(0.0f, 1.0f);                                    glVertex3f(-6.5f,  4.5f, 0.0f);
+    glEnd();
+
+    /* Right block: right of hole, in the hole's Y range */
+    glBegin(GL_QUADS);
+    glTexCoord2f((hx + 6.5f) / 13.0f, (hy_top + 4.5f) / 9.0f);  glVertex3f(  hx,  hy_top, 0.0f);
+    glTexCoord2f(1.0f,                 (hy_top + 4.5f) / 9.0f);  glVertex3f(6.5f,  hy_top, 0.0f);
+    glTexCoord2f(1.0f,                 (hy_bot + 4.5f) / 9.0f);  glVertex3f(6.5f,  hy_bot, 0.0f);
+    glTexCoord2f((hx + 6.5f) / 13.0f, (hy_bot + 4.5f) / 9.0f);  glVertex3f(  hx,  hy_bot, 0.0f);
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glPopMatrix();
+}
+
 int gif_bg_charselect_active(void)
 {
     return cs_bg.loaded && g.mode0 == 2 && g.mode1 == 0;

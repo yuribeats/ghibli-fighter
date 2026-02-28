@@ -153,7 +153,7 @@ static void draw_scroll2_or_gif(void) {
 	} else if (gif_bg_vs_screen_active()) {
 		gif_bg_draw_vs_screen();
 	} else if (gif_bg_title_active()) {
-		gif_bg_draw_title();
+		/* title GIF already drawn behind all layers */
 	} else if (gif_bg_is_active()) {
 		gif_bg_draw();
 	} else {
@@ -161,14 +161,14 @@ static void draw_scroll2_or_gif(void) {
 	}
 }
 static void draw_scroll1_or_skip(void) {
-	if (gif_bg_charselect_active() || gif_bg_vs_screen_active() || gif_bg_title_active() || gif_bg_is_active()) {
-		return;  /* full-screen background replaces all scroll layers */
+	if (gif_bg_charselect_active() || gif_bg_vs_screen_active() || gif_bg_is_active()) {
+		return;
 	}
 	draw_scroll1();
 }
 static void draw_scroll3_or_gif(void) {
-	if (gif_bg_charselect_active() || gif_bg_vs_screen_active() || gif_bg_title_active() || gif_bg_is_active()) {
-		return;  /* background replaces both scroll layers */
+	if (gif_bg_charselect_active() || gif_bg_vs_screen_active() || gif_bg_is_active()) {
+		return;
 	}
 	draw_scroll3();
 }
@@ -963,6 +963,11 @@ void gfx_glut_drawgame(void) {
 	}
 #endif
     
+    /* Draw title GIF behind all layers so intro text renders on top */
+    if (gif_bg_title_active()) {
+        gif_bg_draw_title();
+    }
+
     SCROLL[(g.CPS.DispEna >>   6) & 3]();
 	SCROLL[(g.CPS.DispEna >>   8) & 3]();
 	SCROLL[(g.CPS.DispEna >>  10) & 3]();

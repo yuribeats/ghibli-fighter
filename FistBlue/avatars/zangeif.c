@@ -495,7 +495,7 @@ static void sub_31c84(Player *ply, int d1) {
 	sub_31f18(ply);
 }
 
-int PLCBPowerZangeif(Player *ply) {			// 31c40
+void PLCBPowerZangeif(Player *ply) {			// 31c40
 	UD *ud = (UD*)&ply->UserData;
 	const static char data_31cd0[] = {
 		8, 4, 8, 4, 1, 2, 1, 2
@@ -510,7 +510,7 @@ int PLCBPowerZangeif(Player *ply) {			// 31c40
 		case 0:
 			if ((ply->JoyDecode.full & JOY_MOVEMASK) == 0) {
 				ud->mode_power = 0;
-				return 0;
+				return;
 			} else {
 				switch (ply->JoyDecode.part.p1) {
 					case 1: sub_31c84(ply, 0); break;
@@ -518,7 +518,7 @@ int PLCBPowerZangeif(Player *ply) {			// 31c40
 					case 8: sub_31c84(ply, 4); break;
 					case 4: sub_31c84(ply, 6); break;
 					default:
-						return 0;
+						return;
 						break;
 				}
 			}
@@ -526,7 +526,7 @@ int PLCBPowerZangeif(Player *ply) {			// 31c40
 		case 2:
 			if (--ud->power_potential == 0) {
 				ud->mode_power = 0;
-				return 0;
+				return;
 			}
 			if (ply->JoyDecode.full & 0xf) {
 				if ((ply->JoyDecode.full & JOY_MOVEMASK) == data_31cd0[ud->power_sel]) {
@@ -543,7 +543,7 @@ int PLCBPowerZangeif(Player *ply) {			// 31c40
 		case 4:
 			if (--ud->power_potential == 0) {
 				ud ->mode_power = 0;
-				return 0;
+				return;
 			}
 			if (ply->JoyDecode.full & JOY_MOVEMASK) {
 				if ((ply->JoyDecode.full & JOY_MOVEMASK) == data_31cfc[ud->power_sel]) {
@@ -554,7 +554,7 @@ int PLCBPowerZangeif(Player *ply) {			// 31c40
 		case 6:
 			if (--ud->power_potential == 0) {
 				ud ->mode_power = 0;
-				return 0;
+				return;
 			}
 			if (ply->JoyDecode.full & JOY_MOVEMASK) {
 				if ((ply->JoyDecode.full & JOY_MOVEMASK) == data_31d2e[ud->power_sel]) {
@@ -564,20 +564,21 @@ int PLCBPowerZangeif(Player *ply) {			// 31c40
 			break;
 		case 8:
 			if (PLY_NEWBUTTONS & BUTTON_PUNCHES) {
-				return sub_31d56(ply, PLY_NEWBUTTONS & BUTTON_PUNCHES);
+				sub_31d56(ply, PLY_NEWBUTTONS & BUTTON_PUNCHES);
+				return;
 			} else if (~ply->JoyDecode.full & ply->JoyDecodeDash.full & BUTTON_PUNCHES) {
-				return sub_31d56(ply, PLY_NEWBUTTONS & BUTTON_PUNCHES);
+				sub_31d56(ply, PLY_NEWBUTTONS & BUTTON_PUNCHES);
+				return;
 			} else {
-				++ud->power_potential; 
+				++ud->power_potential;
 				if (ud->power_potential >= 0xe) {
 					ud->mode_power = 0;
 				}
-				return 0;
+				return;
 			}
 			break;
 		FATALDEFAULT;
 	}
-	return 0;
 }
 static void sub_31654(Player *ply) {		// lariat punch
 	if (ply->mode2 == 0) {

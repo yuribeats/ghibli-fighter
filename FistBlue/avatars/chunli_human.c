@@ -533,9 +533,9 @@ int PLCBJumpChunLi(Player *ply) {		// 30142
 	return 0;
 }
 
-int PLCBPowerChunLi(Player *ply) {			// 30154 chunli powermove
+void PLCBPowerChunLi(Player *ply) {			// 30154 chunli powermove
 	chunli_check_birdkick(ply);
-	return sub_30312(ply);
+	sub_30312(ply);
 }
 static void chunli_attack_crouch(Player *ply) {		// 308b2 
 	UD *ud=(UD *)&ply->UserData;

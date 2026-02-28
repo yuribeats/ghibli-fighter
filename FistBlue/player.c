@@ -29,18 +29,18 @@
 int PLCBStandZangeif(Player *ply);
 int PLCBCrouchZangeif(Player *ply);
 int PLCBJumpZangeif(Player *ply);
-int PLCBPowerZangeif(Player *ply);
+void PLCBPowerZangeif(Player *ply);
 void pl_cb_setstatus1_zangeif(Player *ply, short status);
-void pl_cb_setstatus2_zangeif(Player *ply, short status);
+void pl_cb_setstatus2_zangeif(Player *ply, short status, int argd0);
 void pl_cb_setstatus3_zangeif(Player *ply, short status);
 
 
 int PLCBStandDhalsim(Player *ply);
 int PLCBCrouchDhalsim(Player *ply);
 int PLCBJumpDhalsim(Player *ply);
-int PLCBPowerDhalsim(Player *ply);
+void PLCBPowerDhalsim(Player *ply);
 void pl_cb_setstatus1_dhalsim(Player *ply, short status);
-void pl_cb_setstatus2_dhalsim(Player *ply, short status);
+void pl_cb_setstatus2_dhalsim(Player *ply, short status, int argd0);
 void pl_cb_setstatus3_dhalsim(Player *ply, short status);
 
 void pl_cb_setstatus1_sagat(Player *ply, short status);
@@ -133,13 +133,13 @@ static void apply_throw_damage(Player *ply, Player *opp_a3, short index) {		///0
     if (g.FastEndingFight == 0 && g.OnBonusStage == 0) {
         if(opp_a3->Energy >= dr.damage) { return; }
 
-        if(ply->FighterID == FID_CHUN_LI) {
+        /* throw will KO - play sound and start time warp,
+           but let UndealtDamage apply naturally during tumble landing */
+        if(opp_a3->FighterID == FID_CHUN_LI) {
             queuesound(SOUND_KO_FEMALE);
         } else {
             queuesound(SOUND_KO_MALE);
         }
-        opp_a3->Energy        = -1;
-        opp_a3->UndealtDamage = 0;
         QueueEffect(opp_a3->RewardID, opp_a3->Side ^ 1);
 		LBStartTimeWarp();
     } else {
@@ -378,9 +378,9 @@ void check_powermove_input(Player *ply) { /* 2a7ea, actually void() */
 		PLCBPowerBlanka,
 		PLCBPowerGuile,
 		PLCBPowerRyu,
-		(void (*const)(Player *))PLCBPowerChunLi,
-		(void (*const)(Player *))PLCBPowerZangeif,
-		(void (*const)(Player *))PLCBPowerDhalsim
+		PLCBPowerChunLi,
+		PLCBPowerZangeif,
+		PLCBPowerDhalsim
 	} ; 
 	return data_2a7fa[ply->FighterID](ply);
 }
@@ -451,12 +451,12 @@ static void (* const PL_CB_SETSTATUS2[])(Player *ply, short status, int argd0)={
 	pl_cb_setstatus2_guile,
 	pl_cb_setstatus2_ken,
 	pl_cb_setstatus2_chunli,
-	(void (*const)(Player *, short, int))pl_cb_setstatus2_zangeif,
-	(void (*const)(Player *, short, int))pl_cb_setstatus2_dhalsim,
-	(void (*const)(Player *, short, int))pl_cb_setstatus2_mbison,
-	(void (*const)(Player *, short, int))pl_cb_setstatus2_sagat,
-	(void (*const)(Player *, short, int))pl_cb_setstatus2_balrog,
-	(void (*const)(Player *, short, int))pl_cb_setstatus2_vega,
+	pl_cb_setstatus2_zangeif,
+	pl_cb_setstatus2_dhalsim,
+	pl_cb_setstatus2_mbison,
+	pl_cb_setstatus2_sagat,
+	pl_cb_setstatus2_balrog,
+	pl_cb_setstatus2_vega,
 
 };
 static void (*const PL_CB_SETSTATUS1[])(Player *ply, short status)={

@@ -117,12 +117,11 @@ static void
 discard_sub_blocks(gd_GIF *gif)
 {
     uint8_t size;
-    int safety = 0;
+    int safety = 1000;
     do {
         if (fread(&size, 1, 1, gif->fd) < 1) break;
         fseek(gif->fd, size, SEEK_CUR);
-        if (++safety > 10000) break;
-    } while (size);
+    } while (size && --safety > 0);
 }
 
 static void
@@ -275,8 +274,7 @@ read_image_data(gd_GIF *gif, int interlace)
     ret = 0;
     frm_size = gif->fw * gif->fh;
 
-    int max_iters = frm_size * 2 + 10000;
-    while (frm_off < frm_size && max_iters-- > 0) {
+    while (frm_off < frm_size) {
         if (key == clear) {
             key_size = init_key_size + 1;
             table_is_full = 0;
@@ -334,12 +332,13 @@ read_image_data(gd_GIF *gif, int interlace)
         fseek(gif->fd, sub_len, SEEK_CUR);
 
     /* consume remaining sub-blocks */
-    fread(&sub_len, 1, 1, gif->fd);
-    { int sb_safety = 0;
-    while (sub_len && ++sb_safety < 10000) {
-        fseek(gif->fd, sub_len, SEEK_CUR);
-        if (fread(&sub_len, 1, 1, gif->fd) < 1) break;
-    } }
+    if (fread(&sub_len, 1, 1, gif->fd) == 1) {
+        int safety = 1000;
+        while (sub_len && --safety > 0) {
+            fseek(gif->fd, sub_len, SEEK_CUR);
+            if (fread(&sub_len, 1, 1, gif->fd) < 1) break;
+        }
+    }
     return 0;
 }
 
@@ -378,7 +377,6 @@ gd_get_frame(gd_GIF *gif)
         }
     }
 
-    { int ext_safety = 0;
     for (;;) {
         if (fread(&sep, 1, 1, gif->fd) < 1)
             return 0;
@@ -388,9 +386,7 @@ gd_get_frame(gd_GIF *gif)
             read_ext(gif);
         else if (sep == 0x2C)
             break;
-        if (++ext_safety > 10000)
-            return 0;
-    } }
+    }
 
     gif->fx = read_num(gif->fd);
     gif->fy = read_num(gif->fd);

@@ -349,11 +349,6 @@ void key(unsigned char inkey, int px, int py){
 }
 
 void timerFunc(int value) {
-#ifdef __EMSCRIPTEN__
-    /* Schedule next tick FIRST so a crash doesn't kill the loop */
-    glutTimerFunc(time_wait, timerFunc, 0);
-    EM_ASM({ window._sf2hb=(window._sf2hb||0)+1; });
-#endif
     task_timer();
     gif_bg_update();
 
@@ -372,9 +367,7 @@ void timerFunc(int value) {
     }
 
     glutPostRedisplay();
-#ifndef __EMSCRIPTEN__
     glutTimerFunc(time_wait, timerFunc, 0);
-#endif
 }
 
 int main(int argc, const char * argv[])

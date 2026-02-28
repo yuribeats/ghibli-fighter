@@ -189,8 +189,15 @@ static struct texture_cache_t {
 } TC;
 int gemuCacheClear;
 
+#ifdef __EMSCRIPTEN__
+#define MAX_TEXTURES 1500
+static int texture_count = 0;
+#define TEX_COUNT_INC() texture_count++
+#define TEX_COUNT_DEC() texture_count--
+#else
 #define TEX_COUNT_INC()
 #define TEX_COUNT_DEC()
+#endif
 
 const GLfloat flips[4][4][2] = { 
 	{{1.0, 1.0},{0.0, 1.0},{0.0, 0.0},{1.0, 0.0}},
@@ -241,6 +248,9 @@ void gemu_clear_cache(void) {
 		}			
 	}
 	gemuCacheClear = FALSE;
+#ifdef __EMSCRIPTEN__
+	texture_count = 0;
+#endif
 }
 
 
@@ -868,6 +878,11 @@ void gfx_glut_drawgame(void) {
 	if (gemuCacheClear) {
 		gemu_clear_cache();
 	}
+#ifdef __EMSCRIPTEN__
+	if (texture_count > MAX_TEXTURES) {
+		gemu_clear_cache();
+	}
+#endif
 
 #ifdef __EMSCRIPTEN__
 	/* 2D ortho setup for Emscripten — game is 2D, skip 3D camera */

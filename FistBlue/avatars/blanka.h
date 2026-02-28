@@ -23,7 +23,7 @@ void PSCBAttackBlanka(Player *ply);
 
 void PSCBVictoryBlanka(Player *ply);
 
-void PLCBCompJumpBlanka(Player *ply);
+int PLCBCompJumpBlanka(Player *ply);
 void PLCBCompAttackBlanka(Player *ply);
 
 void sub_33ada(Player *ply, short sel );

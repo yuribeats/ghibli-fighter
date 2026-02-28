@@ -408,13 +408,14 @@ static void sub_33ab8(Player *ply) {
 	
 }
 
-void PLCBCompJumpBlanka(Player *ply) {	//335bc
+int PLCBCompJumpBlanka(Player *ply) {	//335bc
 	//33a02
 	if (ply->VelX.full == 0) {
 		sub_33a10(ply, 8);
 	} else {
 		sub_33a10(ply, 0xc);
 	}
+	return 0;
 }	
 
 void PLCBCompAttackBlanka(Player *ply) {		//335c0

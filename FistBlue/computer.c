@@ -761,6 +761,7 @@ static void comp_set_block6(Player *ply) {
 }
 
 static void comp_attack_plycallback (Player *ply) { /* 2cc58 */
+	if (check_round_result() && ply->mode2 >= 2) { PSStateRoundOver(ply); return; }
 	void (*data_2cc66[])(Player *)={
 		PLCBCompAttackRyuKen,
 		PLCBCompAttackEHonda,			//sub_33016,

@@ -231,9 +231,11 @@ body.touch canvas {
 (function(){
   var cm=document.getElementById('crash-msg');
   function showErr(msg){cm.style.display='block';cm.textContent=msg;}
-  window.onerror=function(m){showErr('ERR: '+m);};
-  window.onunhandledrejection=function(e){showErr('REJ: '+e.reason);};
+  window.onerror=function(m,s,l,c,e){showErr('ERR: '+(e&&e.message||m));};
+  window.onunhandledrejection=function(e){showErr('REJ: '+(e.reason&&e.reason.message||e.reason));};
   document.getElementById('canvas').addEventListener('webglcontextlost',function(e){e.preventDefault();showErr('WEBGL CONTEXT LOST');});
+  if(typeof Module==='undefined') window.Module={};
+  Module.onAbort=function(what){showErr('ABORT: '+what);};
   window._sf2hb=0;
   var lastHb=0, stuckCount=0;
   setInterval(function(){

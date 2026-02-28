@@ -917,9 +917,12 @@ void drawsprite(Object *obj) {         /* 7edaa */
         u32 raw_image = obj->ActionScript->Image;
         u32 swapped = RHSwapLong(raw_image);
         if (swapped >= 0x100000) {
-            printf("drawsprite: BAD image offset 0x%08x Sel=%d Sub=%d, killing object\n",
-                   swapped, obj->Sel, obj->SubSel);
-            obj->exists = FALSE;
+            printf("drawsprite: BAD image, freeing Sel=%d Sub=%d\n", obj->Sel, obj->SubSel);
+            if (obj >= &g.Objects3[0] && obj < &g.Objects3[COUNT_LAYER3]) {
+                FreeActor(obj);
+            } else {
+                obj->exists = FALSE;
+            }
             return;
         }
         image = (const struct image *)RHCODE(swapped);

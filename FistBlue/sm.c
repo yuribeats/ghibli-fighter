@@ -740,13 +740,15 @@ static void SM_setnextfight() {	/* 0x8a38 next fight */
 
 static void SM_game_postanim_8(void) {
 	Object *obj;
+	static int alloc_retries = 0;
 	set_waitmode();
 	switch (g.mode4) {
 		case 0:
 			NEXT(g.mode4);
 			g.timer4 = 0x3;
 			g.CanSpeedUpScoreCount = FALSE;		/* u8 */
-			g.TotalBonusCount = 0;		
+			g.TotalBonusCount = 0;
+			alloc_retries = 0;
 			if(g.HumanWinner == 0) {
 				g.timer4 = 3 * TICKS_PER_SECOND;
 			}
@@ -765,6 +767,12 @@ static void SM_game_postanim_8(void) {
 				DrawTileText(TILETEXT_TIME);
 				NEXT(g.mode4);
 				g.timer4  = 30;
+				alloc_retries = 0;
+			} else if (++alloc_retries > 300) {
+				printf("postanim: AllocActor failed, skipping score time\n");
+				NEXT(g.mode4);
+				g.timer4 = 30;
+				alloc_retries = 0;
 			}
 			break;
 		case 8:
@@ -773,6 +781,12 @@ static void SM_game_postanim_8(void) {
 				DrawTileText(TILETEXT_VITAL);
 				NEXT(g.mode4);
 				g.timer4 = 0x32;
+				alloc_retries = 0;
+			} else if (++alloc_retries > 300) {
+				printf("postanim: AllocActor failed, skipping score vital\n");
+				NEXT(g.mode4);
+				g.timer4 = 0x32;
+				alloc_retries = 0;
 			}
 			break;
 		case 0xc:
@@ -780,6 +794,11 @@ static void SM_game_postanim_8(void) {
 				INITOBJ(obj, SF2ACT_SCORECOUNTER, 4);
 				DrawTileText(TILETEXT_BONUS);
 				NEXT(g.mode4);
+				alloc_retries = 0;
+			} else if (++alloc_retries > 300) {
+				printf("postanim: AllocActor failed, skipping score bonus\n");
+				NEXT(g.mode4);
+				alloc_retries = 0;
 			}
 			break;
 		case 0xe:
@@ -800,7 +819,11 @@ static void SM_game_postanim_8(void) {
 void gamemode_postfightanim (void) {        // 882c
 	Object *obj;
 	short temp;
-	
+	static int pfa_hb = 0;
+	if (++pfa_hb % 300 == 1) {
+		printf("PFA: m3=%d m4=%d TW=%d free=%d\n", g.mode3, g.mode4, g.TimeWarpTimer, g.FreeLayer3);
+	}
+
     if(g.OnBonusStage) {       /* 0x8a4a */
         switch(g.mode3) {
             case 0:

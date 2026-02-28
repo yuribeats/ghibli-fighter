@@ -139,7 +139,8 @@ static void apply_throw_damage(Player *ply, Player *opp_a3, short index) {		///0
         } else {
             queuesound(SOUND_KO_MALE);
         }
-        /* Let UndealtDamage apply during tumble for natural death transition */
+        opp_a3->Energy        = -1;
+        opp_a3->UndealtDamage = 0;
         QueueEffect(opp_a3->RewardID, opp_a3->Side ^ 1);
 		LBStartTimeWarp();
     } else {

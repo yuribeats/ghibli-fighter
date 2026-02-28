@@ -31,7 +31,7 @@ extern struct executive_t Exec;
 #include <setjmp.h>
 
 #define FIBER_STACK_SIZE  65536
-#define ASYNCIFY_BUF_SIZE 8192
+#define ASYNCIFY_BUF_SIZE 65536
 
 static emscripten_fiber_t main_fiber;
 static emscripten_fiber_t task_fibers[NTHREADS];

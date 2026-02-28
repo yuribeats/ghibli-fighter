@@ -318,7 +318,7 @@ void gif_bg_draw_charselect_mask(void)
     float W = 13.0f, H = 9.0f;
 
     /* Hole for 1P cursor area only */
-    float hL = -2.7f, hR = -1.3f, hB = -4.1f, hT = -1.9f;
+    float hL = -2.7f, hR = -1.3f, hB = 1.9f, hT = 4.1f;
 
     glPushMatrix();
     glEnable(GL_TEXTURE_2D);

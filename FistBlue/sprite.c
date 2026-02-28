@@ -917,6 +917,11 @@ void drawsprite(Object *obj) {         /* 7edaa */
         u32 raw_image = obj->ActionScript->Image;
         u32 swapped = RHSwapLong(raw_image);
         if (swapped >= 0x100000) {
+            static int bad_img_log = 0;
+            if (bad_img_log++ < 20) {
+                printf("BAD img: Pool=%d Sel=%d Sub=%d img=0x%x\n",
+                    obj->Pool, obj->Sel, obj->SubSel, swapped);
+            }
             return;  /* image in unmapped 68k work RAM — skip draw, keep object alive */
         }
         image = (const struct image *)RHCODE(swapped);

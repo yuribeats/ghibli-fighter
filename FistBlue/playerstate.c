@@ -352,6 +352,9 @@ void human_per_frame(Player *ply) {		/* 285f4 */
 				}
             }
         }
+    case 4:
+        RM_SM_knockedout(ply);
+        break;
     }
 }
 

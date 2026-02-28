@@ -117,11 +117,18 @@ void gamemode_fightmain (void) {
         } else {
             if (g.RoundResult || g.TimeOut || g.DisableTimer) {
                 if (++diag_counter % 120 == 1) {
-                    printf("STUCK: RR=%d TO=%d RC=%d DT=%d P1fin=%d P2fin=%d P1m0=%d P1m1=%d P2m0=%d P2m1=%d P1e=%d P2e=%d\n",
+                    printf("STUCK: RR=%d TO=%d RC=%d DT=%d P1fin=%d P2fin=%d P1m=%d/%d/%d P2m=%d/%d/%d P1e=%d P2e=%d H=%d/%d\n",
                         g.RoundResult, g.TimeOut, g.RoundComplete, g.DisableTimer,
                         g.Player1.PSFinishedParticipating, g.Player2.PSFinishedParticipating,
-                        g.Player1.mode0, g.Player1.mode1, g.Player2.mode0, g.Player2.mode1,
-                        g.Player1.Energy, g.Player2.Energy);
+                        g.Player1.mode0, g.Player1.mode1, g.Player1.mode2,
+                        g.Player2.mode0, g.Player2.mode1, g.Player2.mode2,
+                        g.Player1.Energy, g.Player2.Energy,
+                        g.Player1.Human, g.Player2.Human);
+                }
+                if (diag_counter > 600) {
+                    printf("FORCE ROUND COMPLETE after %d stuck frames\n", diag_counter);
+                    if (!g.Player1.PSFinishedParticipating) g.Player1.PSFinishedParticipating = TRUE;
+                    if (!g.Player2.PSFinishedParticipating) g.Player2.PSFinishedParticipating = TRUE;
                 }
             } else {
                 diag_counter = 0;

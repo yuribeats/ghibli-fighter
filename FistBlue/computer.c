@@ -765,12 +765,22 @@ static void comp_attack_plycallback (Player *ply) { /* 2cc58 */
 	int side = ply->Side;
 	if (check_round_result() && ply->mode2 >= 2) { PSStateRoundOver(ply); atk_frames[side] = 0; return; }
 	atk_frames[side]++;
-	if (atk_frames[side] > 900) {
-		printf("ATK STUCK[%d]: m2=%d fid=%d frm=%d, resetting\n", side, ply->mode2, ply->FighterID, atk_frames[side]);
+	if (atk_frames[side] > 300) {
+		Player *opp = ply->Opponent;
+		printf("ATK STUCK[%d]: m2=%d fid=%d frm=%d, resetting both\n", side, ply->mode2, ply->FighterID, atk_frames[side]);
 		ply->mode1 = 0;
 		ply->mode2 = ply->mode3 = 0;
 		ply->Attacking = FALSE;
+		ply->ThrowStat = 0;
 		CASetAnim1(ply, 2);
+		if (opp->mode0 == 2 && (opp->mode1 == 0x0a || opp->mode1 == 0x14)) {
+			printf("ATK STUCK: also resetting opponent m1=%d\n", opp->mode1);
+			opp->mode1 = 0;
+			opp->mode2 = opp->mode3 = 0;
+			opp->Attacking = FALSE;
+			opp->ThrowStat = 0;
+			CASetAnim1(opp, 2);
+		}
 		atk_frames[side] = 0;
 		return;
 	}

@@ -94,14 +94,9 @@ void SMFreePlay(void){		// 6cc8
 /* 7880 State for fight in progress */
 void gamemode_fightmain (void) {
     static int diag_counter = 0;
-    static int heartbeat = 0;
-    if (++heartbeat % 300 == 1) {
-        printf("HB: m2=%d RR=%d TO=%d RC=%d DT=%d TW=%d P1s=%d/%d P2s=%d/%d P1e=%d P2e=%d\n",
-            g.mode2, g.RoundResult, g.TimeOut, g.RoundComplete,
-            g.DisableTimer, g.TimeWarpTimer,
-            g.Player1.mode0, g.Player1.mode1, g.Player2.mode0, g.Player2.mode1,
-            g.Player1.Energy, g.Player2.Energy);
-    }
+    static int stale_counter = 0;
+    static int last_p1e = 0, last_p2e = 0;
+    static int last_p1m1 = -1, last_p2m1 = -1;
     if(check_if_new_player()) {
         redraw_fight_dsk();
         fightstuff();
@@ -110,6 +105,7 @@ void gamemode_fightmain (void) {
         LBCheckRoundResult();           /* check for timeout */
         if(g.RoundComplete) {
             diag_counter = 0;
+            stale_counter = 0;
             g.mode2    += 2;
             g.RoundCnt++;
             draw_victorysigns();
@@ -130,8 +126,38 @@ void gamemode_fightmain (void) {
                     if (!g.Player1.PSFinishedParticipating) g.Player1.PSFinishedParticipating = TRUE;
                     if (!g.Player2.PSFinishedParticipating) g.Player2.PSFinishedParticipating = TRUE;
                 }
+                stale_counter = 0;
             } else {
                 diag_counter = 0;
+                if (!g.PreRoundAnim) {
+                    if (g.Player1.Energy == last_p1e && g.Player2.Energy == last_p2e &&
+                        g.Player1.mode1 == last_p1m1 && g.Player2.mode1 == last_p2m1) {
+                        stale_counter++;
+                    } else {
+                        stale_counter = 0;
+                    }
+                    last_p1e = g.Player1.Energy;
+                    last_p2e = g.Player2.Energy;
+                    last_p1m1 = g.Player1.mode1;
+                    last_p2m1 = g.Player2.mode1;
+                    if (stale_counter > 600) {
+                        printf("STALE FIGHT: %d frames no change P1m=%d/%d P2m=%d/%d P1e=%d P2e=%d, resetting both\n",
+                            stale_counter, g.Player1.mode0, g.Player1.mode1,
+                            g.Player2.mode0, g.Player2.mode1,
+                            g.Player1.Energy, g.Player2.Energy);
+                        if (g.Player1.mode0 == 2) {
+                            g.Player1.mode1 = 0; g.Player1.mode2 = 0; g.Player1.mode3 = 0;
+                            g.Player1.Attacking = FALSE; g.Player1.ThrowStat = 0;
+                            CASetAnim1(&g.Player1, 2);
+                        }
+                        if (g.Player2.mode0 == 2) {
+                            g.Player2.mode1 = 0; g.Player2.mode2 = 0; g.Player2.mode3 = 0;
+                            g.Player2.Attacking = FALSE; g.Player2.ThrowStat = 0;
+                            CASetAnim1(&g.Player2, 2);
+                        }
+                        stale_counter = 0;
+                    }
+                }
             }
             redraw_fight_dsk();
             fightstuff();

@@ -45,18 +45,20 @@ static void syslib_1c(void);
 static void syslib_20(void);
 static void syslib_26(void);
 
+static void syslib_nop(void) { /* stub for unimplemented effects */ }
+
 void *data_155c[] = {
 	syslib_00,
 	syslib_04,	// 597a	copyright notices etc.
 	syslib_08,	// 4f3a insert coin blinker
 	syslib_0c,	// 4ade
 	syslib_10,	//4f9e,
-	NULL,		//5a3e,
+	syslib_nop,	//5a3e, unimplemented
 	syslib_18,	//5b22	usa/etc winning chants,
 	syslib_1c,	//5c12,
 	syslib_20,	//5410, add to player score
-	NULL,		//5ce2 jap winning chants,
-	NULL,		//4a76 die and go to test menu?
+	syslib_nop,	//5ce2 jap winning chants, unimplemented
+	syslib_nop,	//4a76 die and go to test menu? unimplemented
 	syslib_26,		//5e14
 };
 

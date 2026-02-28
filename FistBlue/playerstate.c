@@ -682,7 +682,7 @@ void proc_plstat_powermove(Player *ply) {
 		PSCBPowerNULL,	 //Blanka same as EHonda, nothing
 		PSCBPowerGuile,	 
 		PSCBPowerRyu,	 //Ken
-		NULL,
+		PSCBPowerNULL,	 //ChunLi doesn't need one
 		PSCBPowerZangeif,
 		PSCBPowerDhalsim,
     };

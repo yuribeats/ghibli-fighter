@@ -189,15 +189,6 @@ static struct texture_cache_t {
 } TC;
 int gemuCacheClear;
 
-#ifdef __EMSCRIPTEN__
-#define MAX_TEXTURES 512
-static int texture_count = 0;
-#define TEX_COUNT_INC() texture_count++
-#define TEX_COUNT_DEC() texture_count--
-#else
-#define TEX_COUNT_INC()
-#define TEX_COUNT_DEC()
-#endif
 
 const GLfloat flips[4][4][2] = { 
 	{{1.0, 1.0},{0.0, 1.0},{0.0, 0.0},{1.0, 0.0}},
@@ -248,9 +239,6 @@ void gemu_clear_cache(void) {
 		}			
 	}
 	gemuCacheClear = FALSE;
-#ifdef __EMSCRIPTEN__
-	texture_count = 0;
-#endif
 }
 
 
@@ -287,13 +275,11 @@ void gemu_cache_scroll1(u16 tile, short palette) {
 	if (TC.text_scr1[tile][0] && TC.text_scr1[tile][1] != palette) {
 		glDeleteTextures(1, &TC.text_scr1[tile][0]);
 		TC.text_scr1[tile][0] = 0;
-		TEX_COUNT_DEC();
 	}
 	if (TC.text_scr1[tile][0] == 0) {
 		gemu_readtile_scroll1(tile);
         gemu_color_tile(TILE_PIXELS_SCR1, palette, (GLubyte *)tempmap, &gemu.PalScroll1);
 		glGenTextures(1, &TC.text_scr1[tile][0]);
-		TEX_COUNT_INC();
 		if (&TC.text_scr1[tile][0]==0) {
 			FBPanic(999);
 		}
@@ -314,13 +300,11 @@ void gemu_cache_scroll2(u16 tile, short palette) {
 	if (TC.text_scr2[tile][0] && TC.text_scr2[tile][1] != palette) {
 		glDeleteTextures(1, &TC.text_scr2[tile][0]);
 		TC.text_scr2[tile][0] = 0;
-		TEX_COUNT_DEC();
 	}
 	if (TC.text_scr2[tile][0] == 0) {
 		gemu_readtile_scroll2(tile);
         gemu_color_tile(TILE_PIXELS_SCR2, palette, (GLubyte *)tempmap, &gemu.PalScroll2);
 		glGenTextures(1, &TC.text_scr2[tile][0]);
-		TEX_COUNT_INC();
 		if (&TC.text_scr2[tile][0]==0) {
 			FBPanic(999);
 		}
@@ -341,13 +325,11 @@ void gemu_cache_scroll3(u16 tile, short palette) {
 	if (TC.text_scr3[tile][0] && TC.text_scr3[tile][1] != palette) {
 		glDeleteTextures(1, &TC.text_scr3[tile][0]);
 		TC.text_scr3[tile][0] = 0;
-		TEX_COUNT_DEC();
 	}
 	if (TC.text_scr3[tile][0] == 0) {
 		gemu_readtile_scroll3(tile);
         gemu_color_tile(TILE_PIXELS_SCR3, palette, (GLubyte *)tempmap, &gemu.PalScroll3);
 		glGenTextures(1, &TC.text_scr3[tile][0]);
-		TEX_COUNT_INC();
 		if (&TC.text_scr3[tile][0]==0) {
 			FBPanic(999);
 		}
@@ -368,13 +350,11 @@ void gemu_cache_object(u16 tile, short palette) {
 	if (TC.text_obj[tile][0] && TC.text_obj[tile][1] != palette) {
 		glDeleteTextures(1, &TC.text_obj[tile][0]);
 		TC.text_obj[tile][0] = 0;
-		TEX_COUNT_DEC();
 	}
 	if (TC.text_obj[tile][0] == 0) {
 		gemu_readtile(tile);
         gemu_color_tile(TILE_PIXELS_OBJ, palette, (GLubyte *)tempmap, &gemu.PalObject);
 		glGenTextures(1, &TC.text_obj[tile][0]);
-		TEX_COUNT_INC();
 		if (&TC.text_obj[tile][0]==0) {
 			FBPanic(999);
 		}
@@ -878,11 +858,6 @@ void gfx_glut_drawgame(void) {
 	if (gemuCacheClear) {
 		gemu_clear_cache();
 	}
-#ifdef __EMSCRIPTEN__
-	if (texture_count > MAX_TEXTURES) {
-		gemu_clear_cache();
-	}
-#endif
 
 #ifdef __EMSCRIPTEN__
 	/* 2D ortho setup for Emscripten — game is 2D, skip 3D camera */

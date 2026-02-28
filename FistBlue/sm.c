@@ -27,6 +27,10 @@
 
 #include <stdio.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #define DEBUG_SM(string) \
 do { if (FISTBLUE_DEBUG_SM) fprintf(stderr, "%s:%d:%s():%s\n","SM", \
 __LINE__, __func__, string); } while (0)

@@ -50,3 +50,5 @@ CMakeUserPresets.json
 FBTests/test-redhammer
 web_build/
 SF2.app/
+.vercel
+.env*.local

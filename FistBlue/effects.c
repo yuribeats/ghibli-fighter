@@ -20,6 +20,10 @@
 #include "gfx_glut.h"
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 extern struct executive_t Exec;
 
 extern CPSGFXEMU gemu;

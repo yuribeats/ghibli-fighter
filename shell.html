@@ -458,8 +458,8 @@ window.addEventListener('unhandledrejection', function(e) {
   }, {passive: false});
   dpad.addEventListener('touchcancel', function() { clearDpad(); dpadTid = null; });
 
-  // Buttons
-  var btns = document.querySelectorAll('.gp-btn');
+  // Buttons (skip volume buttons — they have no data-kc)
+  var btns = document.querySelectorAll('.gp-btn[data-kc]');
   for (var b = 0; b < btns.length; b++) (function(btn) {
     var kc = parseInt(btn.dataset.kc), key = btn.dataset.key;
     btn.addEventListener('touchstart', function(e) {
@@ -515,8 +515,17 @@ window.addEventListener('unhandledrejection', function(e) {
   });
   var vu = document.getElementById('gp-volup');
   var vd = document.getElementById('gp-voldn');
-  if (vu) vu.addEventListener('touchstart', function(e) { e.preventDefault(); adjVol(0.1); }, {passive:false});
-  if (vd) vd.addEventListener('touchstart', function(e) { e.preventDefault(); adjVol(-0.1); }, {passive:false});
+  function volHandler(delta) {
+    return function(e) { e.preventDefault(); adjVol(delta); };
+  }
+  if (vu) {
+    vu.addEventListener('touchstart', volHandler(0.1), {passive:false});
+    vu.addEventListener('click', function() { adjVol(0.1); });
+  }
+  if (vd) {
+    vd.addEventListener('touchstart', volHandler(-0.1), {passive:false});
+    vd.addEventListener('click', function() { adjVol(-0.1); });
+  }
 })();
 </script>
 {{{ SCRIPT }}}

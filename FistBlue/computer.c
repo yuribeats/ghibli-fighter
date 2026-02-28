@@ -761,7 +761,20 @@ static void comp_set_block6(Player *ply) {
 }
 
 static void comp_attack_plycallback (Player *ply) { /* 2cc58 */
-	if (check_round_result() && ply->mode2 >= 2) { PSStateRoundOver(ply); return; }
+	static int atk_frames[2] = {0, 0};
+	int side = ply->Side;
+	if (check_round_result() && ply->mode2 >= 2) { PSStateRoundOver(ply); atk_frames[side] = 0; return; }
+	atk_frames[side]++;
+	if (atk_frames[side] > 900) {
+		printf("ATK STUCK[%d]: m2=%d fid=%d frm=%d, resetting\n", side, ply->mode2, ply->FighterID, atk_frames[side]);
+		ply->mode1 = 0;
+		ply->mode2 = ply->mode3 = 0;
+		ply->Attacking = FALSE;
+		CASetAnim1(ply, 2);
+		atk_frames[side] = 0;
+		return;
+	}
+	if (ply->mode1 != 0x0a) { atk_frames[side] = 0; }
 	void (*data_2cc66[])(Player *)={
 		PLCBCompAttackRyuKen,
 		PLCBCompAttackEHonda,			//sub_33016,

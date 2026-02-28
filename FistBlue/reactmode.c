@@ -115,19 +115,13 @@ static void choose_blockstun(Player *ply) {		// 29060
 
 
 void RM_SM_knockedout(Player *ply) {			// 29c4c
-	static int ko_frames[2] = {0, 0};
+	static int ko_logged[2] = {0, 0};
 	int side = ply->Side;
-	if (ply->mode3 == 0 && ko_frames[side] == 0) {
+	if (!ko_logged[side]) {
 		printf("KO[%d]: m1=%d m2=%d fin=%d H=%d\n", side, ply->mode1, ply->mode2, ply->PSFinishedParticipating, ply->Human);
+		ko_logged[side] = 1;
 	}
-	ko_frames[side]++;
-	if (ko_frames[side] > 120 && !ply->PSFinishedParticipating) {
-		printf("KO[%d] FORCE fin: m1=%d m2=%d frm=%d\n", side, ply->mode1, ply->mode2, ko_frames[side]);
-		ply->PSFinishedParticipating = TRUE;
-	}
-	if (ply->PSFinishedParticipating) {
-		ko_frames[side] = 0;
-	}
+	if (ply->mode0 != 4) { ko_logged[side] = 0; }
 	switch (ply->mode1) {
 		case DIESTAT_0:			/* 29c7a */
 		case DIESTAT_4:

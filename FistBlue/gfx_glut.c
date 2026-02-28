@@ -190,7 +190,7 @@ static struct texture_cache_t {
 int gemuCacheClear;
 
 #ifdef __EMSCRIPTEN__
-#define MAX_TEXTURES 1500
+#define MAX_TEXTURES 512
 static int texture_count = 0;
 #define TEX_COUNT_INC() texture_count++
 #define TEX_COUNT_DEC() texture_count--

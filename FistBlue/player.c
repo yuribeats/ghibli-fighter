@@ -159,7 +159,10 @@ int _EnergyDamageAdjust(Player *ply, int damage) {			// 3640 change to globals
 
 void LBGetDamage(Player *ply, Player *opp, int index) {	/* 0x35c0 */
 	/* XXX modify to return struct */
-    if((index & 0x7f) >= 0x20) {
+    if(index & 0x7f >= 0x20) {
+        dr.damage = data_99324[index/2][ply->Difficulty];
+        dr.d5     = data_99544[index/2];
+    } else {
         index -= 0x20;
         dr.d5=data_995a6[index/2];
 
@@ -167,9 +170,6 @@ void LBGetDamage(Player *ply, Player *opp, int index) {	/* 0x35c0 */
         } else if (opp->Energy >= data_99566[index/2][3]) { dr.damage = data_99566[index/2][4];
         } else                { dr.damage = opp->Energy-(opp->Energy >> data_99566[index/2][0]);
         }
-    } else {
-        dr.damage = data_99324[index/2][ply->Difficulty];
-        dr.d5     = data_99544[index/2];
     }       
     dr.damage=_EnergyDamageAdjust(ply, dr.damage);     /* diminish the damage */
 }

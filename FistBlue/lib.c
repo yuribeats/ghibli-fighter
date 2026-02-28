@@ -152,10 +152,16 @@ void debughook(int data) {
 }
 
 // todo: move me
+#ifdef __EMSCRIPTEN__
+void FBPanic(int data) {
+	static int panic_count = 0;
+	if (++panic_count <= 10) {
+		printf("PANIC(%d) #%d — continuing\n", data, panic_count);
+	}
+}
+#else
 _Noreturn void FBPanic(int data) {
 	printf("PANIC()\n");
-
-#if !defined(CPS) && !defined(__EMSCRIPTEN__)
 	void *callstack[128];
 	int i, frames = backtrace(callstack, 128);
 	char** strs = backtrace_symbols(callstack, frames);
@@ -163,9 +169,9 @@ _Noreturn void FBPanic(int data) {
 		printf("%s\n", strs[i]);
 	}
 	free(strs);
-#endif
     abort();
 }
+#endif
 
 #pragma mark ---- Jumper Decoding ---
 

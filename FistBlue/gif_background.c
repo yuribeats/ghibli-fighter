@@ -107,14 +107,6 @@ void gif_bg_load_stage(int stage_id)
     if (stage_id < 0 || stage_id >= GIF_MAX_STAGES)
         return;
 
-#ifdef __EMSCRIPTEN__
-    /* Skip stage GIF on mobile to avoid freeze/memory issues */
-    if (EM_ASM_INT({ return ('ontouchstart' in window) ? 1 : 0; })) {
-        printf("gif_bg: skipping stage GIF on mobile\n");
-        return;
-    }
-#endif
-
     snprintf(path, sizeof(path), "./assets/backgrounds/%s", stage_gif_names[stage_id]);
     printf("gif_bg: trying %s\n", path);
 
@@ -389,13 +381,6 @@ int gif_bg_vs_screen_active(void)
 void gif_bg_load_title(void)
 {
     title_bg.loaded = 0;
-
-#ifdef __EMSCRIPTEN__
-    if (EM_ASM_INT({ return ('ontouchstart' in window) ? 1 : 0; })) {
-        printf("title_bg: skipping on mobile\n");
-        return;
-    }
-#endif
 
     title_bg.gif = gd_open_gif("./assets/backgrounds/title.gif");
     if (!title_bg.gif) {

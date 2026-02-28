@@ -314,44 +314,47 @@ void gif_bg_draw_charselect_mask(void)
     if (!cs_bg.loaded || !cs_bg.texture)
         return;
 
-    /* Draw the charselect PNG everywhere EXCEPT a hole for Ryu/Ken.
-     * Hole: left portion x(-6.5, -1.5) y(-3.5, 1.5)
-     * where col 0 grid thumbnails + left side portrait are.
-     * Three quads: top strip, bottom strip, right block. */
+    float L = -6.5f, R = 6.5f, B = -4.5f, T = 4.5f;
+    float W = 13.0f, H = 9.0f;
 
-    float hx = -1.5f;
-    float hy_top = -3.5f;
-    float hy_bot =  1.5f;
+    /* Hole for 1P cursor area only */
+    float hL = -2.7f, hR = -1.3f, hB = -4.1f, hT = -1.9f;
 
     glPushMatrix();
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, cs_bg.texture);
     glColor3f(1.0f, 1.0f, 1.0f);
 
-    /* UV: u = (gl_x + 6.5) / 13.0, v = (gl_y + 4.5) / 9.0 */
-
     /* Top strip: full width, above the hole */
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f);                                    glVertex3f(-6.5f, -4.5f, 0.0f);
-    glTexCoord2f(1.0f, 0.0f);                                    glVertex3f( 6.5f, -4.5f, 0.0f);
-    glTexCoord2f(1.0f, (hy_top + 4.5f) / 9.0f);                  glVertex3f( 6.5f, hy_top, 0.0f);
-    glTexCoord2f(0.0f, (hy_top + 4.5f) / 9.0f);                  glVertex3f(-6.5f, hy_top, 0.0f);
+    glTexCoord2f(0.0f, (hT-B)/H);  glVertex3f(L, hT, 0.0f);
+    glTexCoord2f(1.0f, (hT-B)/H);  glVertex3f(R, hT, 0.0f);
+    glTexCoord2f(1.0f, 1.0f);      glVertex3f(R, T,  0.0f);
+    glTexCoord2f(0.0f, 1.0f);      glVertex3f(L, T,  0.0f);
     glEnd();
 
     /* Bottom strip: full width, below the hole */
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, (hy_bot + 4.5f) / 9.0f);                  glVertex3f(-6.5f, hy_bot, 0.0f);
-    glTexCoord2f(1.0f, (hy_bot + 4.5f) / 9.0f);                  glVertex3f( 6.5f, hy_bot, 0.0f);
-    glTexCoord2f(1.0f, 1.0f);                                    glVertex3f( 6.5f,  4.5f, 0.0f);
-    glTexCoord2f(0.0f, 1.0f);                                    glVertex3f(-6.5f,  4.5f, 0.0f);
+    glTexCoord2f(0.0f, 0.0f);      glVertex3f(L, B,  0.0f);
+    glTexCoord2f(1.0f, 0.0f);      glVertex3f(R, B,  0.0f);
+    glTexCoord2f(1.0f, (hB-B)/H);  glVertex3f(R, hB, 0.0f);
+    glTexCoord2f(0.0f, (hB-B)/H);  glVertex3f(L, hB, 0.0f);
     glEnd();
 
-    /* Right block: right of hole, in the hole's Y range */
+    /* Left block: left of hole, in hole's Y range */
     glBegin(GL_QUADS);
-    glTexCoord2f((hx + 6.5f) / 13.0f, (hy_top + 4.5f) / 9.0f);  glVertex3f(  hx,  hy_top, 0.0f);
-    glTexCoord2f(1.0f,                 (hy_top + 4.5f) / 9.0f);  glVertex3f(6.5f,  hy_top, 0.0f);
-    glTexCoord2f(1.0f,                 (hy_bot + 4.5f) / 9.0f);  glVertex3f(6.5f,  hy_bot, 0.0f);
-    glTexCoord2f((hx + 6.5f) / 13.0f, (hy_bot + 4.5f) / 9.0f);  glVertex3f(  hx,  hy_bot, 0.0f);
+    glTexCoord2f(0.0f,       (hB-B)/H);  glVertex3f(L,  hB, 0.0f);
+    glTexCoord2f((hL-L)/W,   (hB-B)/H);  glVertex3f(hL, hB, 0.0f);
+    glTexCoord2f((hL-L)/W,   (hT-B)/H);  glVertex3f(hL, hT, 0.0f);
+    glTexCoord2f(0.0f,       (hT-B)/H);  glVertex3f(L,  hT, 0.0f);
+    glEnd();
+
+    /* Right block: right of hole, in hole's Y range */
+    glBegin(GL_QUADS);
+    glTexCoord2f((hR-L)/W,   (hB-B)/H);  glVertex3f(hR, hB, 0.0f);
+    glTexCoord2f(1.0f,       (hB-B)/H);  glVertex3f(R,  hB, 0.0f);
+    glTexCoord2f(1.0f,       (hT-B)/H);  glVertex3f(R,  hT, 0.0f);
+    glTexCoord2f((hR-L)/W,   (hT-B)/H);  glVertex3f(hR, hT, 0.0f);
     glEnd();
 
     glBindTexture(GL_TEXTURE_2D, 0);

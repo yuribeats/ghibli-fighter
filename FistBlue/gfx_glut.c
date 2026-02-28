@@ -149,7 +149,8 @@ static void draw_object(void);
 
 static void draw_scroll2_or_gif(void) {
 	if (gif_bg_charselect_active()) {
-		gif_bg_draw_charselect();
+		draw_scroll2();
+		gif_bg_draw_charselect_mask();
 	} else if (gif_bg_vs_screen_active()) {
 		gif_bg_draw_vs_screen();
 	} else if (gif_bg_title_active()) {

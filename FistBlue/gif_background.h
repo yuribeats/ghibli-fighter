@@ -8,6 +8,7 @@ void gif_bg_draw(void);
 int  gif_bg_is_active(void);
 void gif_bg_load_charselect(void);
 void gif_bg_draw_charselect(void);
+void gif_bg_draw_charselect_mask(void);
 int  gif_bg_charselect_active(void);
 void gif_bg_load_vs_screen(void);
 void gif_bg_draw_vs_screen(void);

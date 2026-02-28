@@ -439,7 +439,7 @@ static int sub_30614(Player *ply, u16 buttons_d5) {
 
 #pragma mark Human move callbacks
 
-int PLCBStandChunLi(Player *ply) {		// 3011e
+short PLCBStandChunLi(Player *ply) {		// 3011e
 	UD *ud=(UD *)&ply->UserData;
 	
 	if (_ChunLiButtons(ply)) {
@@ -448,7 +448,7 @@ int PLCBStandChunLi(Player *ply) {		// 3011e
 	ud->x0085 = 5;
 	return 0;
 }
-int PLCBCrouchChunLi(Player *ply) {		// 30130
+short PLCBCrouchChunLi(Player *ply) {		// 30130
 	UD *ud=(UD *)&ply->UserData;
 	
 	if (_ChunLiButtons(ply)) {
@@ -457,7 +457,7 @@ int PLCBCrouchChunLi(Player *ply) {		// 30130
 	ud->x0085 = 5;
 	return 0;
 }
-int PLCBJumpChunLi(Player *ply) {		// 30142
+short PLCBJumpChunLi(Player *ply) {		// 30142
 	UD *ud=(UD *)&ply->UserData;
 	
 	if (_ChunLiButtons(ply)) {

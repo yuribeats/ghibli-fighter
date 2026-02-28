@@ -25,9 +25,9 @@ void pl_cb_setstatus2_chunli(Player *player, short status, int argd0);
 void pl_cb_setstatus3_chunli(Player *player, short status);
 
 void PLCBPowerChunLi(Player *ply);
-int PLCBStandChunLi(Player *ply);
-int PLCBCrouchChunLi(Player *ply);
-int PLCBJumpChunLi(Player *ply);
+short PLCBStandChunLi(Player *ply);
+short PLCBCrouchChunLi(Player *ply);
+short PLCBJumpChunLi(Player *ply);
 void PSCBAttackChunLi(Player *ply);
 
 void PLCBCompAttackChunLi(Player *ply);

@@ -559,7 +559,7 @@ void PSCBPowerDhalsim(Player *ply) {		// 32b1a
 		FATALDEFAULT;
 	}
 }
-int PLCBStandDhalsim(Player *ply) {		// 32302
+short PLCBStandDhalsim(Player *ply) {		// 32302
 	UD *ud = (UD *)ply->UserData;
 	int buttons;
 	if ((buttons = dhalsim_newbuttons(ply))) {
@@ -579,7 +579,7 @@ int PLCBStandDhalsim(Player *ply) {		// 32302
 	}
 	return 0;
 }
-int PLCBCrouchDhalsim(Player *ply) {
+short PLCBCrouchDhalsim(Player *ply) {
 	UD *ud = (UD *)ply->UserData;
 	int buttons;
 	ud->timer = 5;
@@ -596,7 +596,7 @@ int PLCBCrouchDhalsim(Player *ply) {
 	}
 	return 0;
 }
-int PLCBJumpDhalsim(Player *ply) {
+short PLCBJumpDhalsim(Player *ply) {
 	UD *ud = (UD *)ply->UserData;
 	int buttons;
 	ud->timer = 5;

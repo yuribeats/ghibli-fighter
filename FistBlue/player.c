@@ -26,18 +26,18 @@
 #include "mbison.h"
 
 
-int PLCBStandZangeif(Player *ply);
-int PLCBCrouchZangeif(Player *ply);
-int PLCBJumpZangeif(Player *ply);
+short PLCBStandZangeif(Player *ply);
+short PLCBCrouchZangeif(Player *ply);
+short PLCBJumpZangeif(Player *ply);
 void PLCBPowerZangeif(Player *ply);
 void pl_cb_setstatus1_zangeif(Player *ply, short status);
 void pl_cb_setstatus2_zangeif(Player *ply, short status, int argd0);
 void pl_cb_setstatus3_zangeif(Player *ply, short status);
 
 
-int PLCBStandDhalsim(Player *ply);
-int PLCBCrouchDhalsim(Player *ply);
-int PLCBJumpDhalsim(Player *ply);
+short PLCBStandDhalsim(Player *ply);
+short PLCBCrouchDhalsim(Player *ply);
+short PLCBJumpDhalsim(Player *ply);
 void PLCBPowerDhalsim(Player *ply);
 void pl_cb_setstatus1_dhalsim(Player *ply, short status);
 void pl_cb_setstatus2_dhalsim(Player *ply, short status, int argd0);
@@ -392,9 +392,9 @@ short ply_cb_standmove(Player *ply) {	/* 2a81a */
 		PLCBStandBlanka,
 		PLCBStandGuile,
 		PLCBStandRyu,
-		(short (*const)(Player *))PLCBStandChunLi,
-		(short (*const)(Player *))PLCBStandZangeif,
-		(short (*const)(Player *))PLCBStandDhalsim,
+		PLCBStandChunLi,
+		PLCBStandZangeif,
+		PLCBStandDhalsim,
 	};
 	return data_2a82a[ply->FighterID](ply);
 }
@@ -406,9 +406,9 @@ short ply_cb_crouchmove(Player *ply) {	/* 2a84a */
 		PLCBCrouchBlanka,
 		PLCBCrouchGuile,		
 		PLCBCrouchRyu,
-		(short (*const)(Player *))PLCBCrouchChunLi,
-		(short (*const)(Player *))PLCBCrouchZangeif,
-		(short (*const)(Player *))PLCBCrouchDhalsim,
+		PLCBCrouchChunLi,
+		PLCBCrouchZangeif,
+		PLCBCrouchDhalsim,
 	};			
 	
 	return data_2a85a[ply->FighterID](ply);
@@ -421,9 +421,9 @@ short ply_cb_jumpmove(Player *ply) {	/* 2a87a */
 		PLCBJumpBlanka,
 		PLCBJumpGuile,
 		PLCBJumpRyu,
-		(short (*const)(Player *))PLCBJumpChunLi,
-		(short (*const)(Player *))PLCBJumpZangeif,
-		(short (*const)(Player *))PLCBJumpDhalsim,
+		PLCBJumpChunLi,
+		PLCBJumpZangeif,
+		PLCBJumpDhalsim,
 	};
 	return data_2a88a[ply->FighterID](ply);
 }

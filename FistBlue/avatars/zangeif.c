@@ -264,7 +264,7 @@ static int sub_31d56(Player *ply, int buttons) {
 		return 0;
 	}
 }
-int PLCBStandZangeif(Player *ply) {
+short PLCBStandZangeif(Player *ply) {
 	UD *ud = (UD*)&ply->UserData;
 	if (sub_30f9e(ply)) {
 		ud->x0088.part.p1 = 0;
@@ -358,7 +358,7 @@ static void sub_31360(Player *ply) {			// zang crouch punch big
 	quirkysound(2);
 	ply->Move = 2;
 }
-int PLCBCrouchZangeif(Player *ply) {			// 30f7a
+short PLCBCrouchZangeif(Player *ply) {			// 30f7a
 	UD *ud = (UD*)&ply->UserData;
 	if (sub_30f9e(ply)) {
 		ud->x0088.part.p1 = 0;
@@ -442,7 +442,7 @@ static void sub_31534(Player *ply) {
 	quirkysound(2);
 	ply->Move = (ply->VelX.full == 0 ? 2 : 5);
 }	
-int PLCBJumpZangeif(Player *ply) {			// 30f8c
+short PLCBJumpZangeif(Player *ply) {			// 30f8c
 	UD *ud = (UD*)&ply->UserData;
 	if (sub_30f9e(ply)) {
 		++g.GPCollX;

@@ -242,8 +242,9 @@ body.touch canvas {
       stuckCount++;
       if(stuckCount>=2){
         var ph=window._sf2phase, tk=window._sf2task;
-        var where=ph===0?'STUCK IN task_timer (task='+tk+')':ph===1?'STUCK IN gif_bg_update':ph===2?'completed but never re-entered':'unknown phase '+ph;
-        showErr('FREEZE hb='+hb+' p='+ph+' t='+tk+': '+where);
+        var tg=window._tg||0;
+        var where=ph===0?'task_timer task='+tk+' _tg='+tg+' m0='+((window._sm||'?')):ph===1?'gif_bg_update':ph===2?'never re-entered':'phase='+ph;
+        showErr('FREEZE hb='+hb+': '+where);
       }
     } else {
       stuckCount=0;

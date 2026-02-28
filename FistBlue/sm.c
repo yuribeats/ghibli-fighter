@@ -396,6 +396,9 @@ static void sub_7eb4(void) {		// 7eb4 game mode 2,C
 }
 
 void SM_game (void) {			/* 76e0 */
+#ifdef __EMSCRIPTEN__
+    EM_ASM({ window._sm=$0+'/'+$1+'/'+$2; }, g.mode0, g.mode1, g.mode2);
+#endif
     switch (g.mode0) {
     case 0:
         g.mode0 += 2;

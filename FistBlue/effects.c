@@ -1271,17 +1271,27 @@ void task_game(void) {			// 7672 Game Supertask
 		g.NoInterrupt = MINUS_ONE;
 		if (g.FreezeMachine == FALSE) {
 			g.libsplatter++;
-			
+#ifdef __EMSCRIPTEN__
+			EM_ASM({ window._tg=1; });
+#endif
 			LBGetInputs();				// get_inputs();
 			LBDecodeInputs();			// decode_inputs();
-			SM_game();					// game state machine 
-			
+#ifdef __EMSCRIPTEN__
+			EM_ASM({ window._tg=2; });
+#endif
+			SM_game();					// game state machine
+#ifdef __EMSCRIPTEN__
+			EM_ASM({ window._tg=3; });
+#endif
 			debughook(1);
 		}
 		(void)CHECK_SERVICE_BUTTON;       // XXX this is not a sub
 		if (g.Debug && (g.JPCost & JP_DBGSLEEP)) {
 			sf2sleep((g.JPDifficulty & JP_DIFFMASK) + 2);
 		} else {
+#ifdef __EMSCRIPTEN__
+			EM_ASM({ window._tg=4; });
+#endif
 			if (g.NoInterrupt) {sf2sleep(1); };
 			/* don't sleep if the interrupt stacked */
 		}

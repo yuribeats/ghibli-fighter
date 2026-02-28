@@ -121,7 +121,7 @@ void gamemode_fightmain (void) {
                         g.Player1.Energy, g.Player2.Energy,
                         g.Player1.Human, g.Player2.Human);
                 }
-                if (diag_counter > 600) {
+                if (diag_counter > 300) {
                     printf("FORCE ROUND COMPLETE after %d stuck frames\n", diag_counter);
                     if (!g.Player1.PSFinishedParticipating) g.Player1.PSFinishedParticipating = TRUE;
                     if (!g.Player2.PSFinishedParticipating) g.Player2.PSFinishedParticipating = TRUE;
@@ -140,7 +140,7 @@ void gamemode_fightmain (void) {
                     last_p2e = g.Player2.Energy;
                     last_p1m1 = g.Player1.mode1;
                     last_p2m1 = g.Player2.mode1;
-                    if (stale_counter > 600) {
+                    if (stale_counter > 300) {
                         printf("STALE FIGHT: %d frames no change P1m=%d/%d P2m=%d/%d P1e=%d P2e=%d, resetting both\n",
                             stale_counter, g.Player1.mode0, g.Player1.mode1,
                             g.Player2.mode0, g.Player2.mode1,
@@ -835,9 +835,12 @@ static void SM_game_postanim_8(void) {
 			}
 			break;
 		case 0xe:
-			if(g.ScoreCountFlags == 0) {		/* u8 */
+			if(g.ScoreCountFlags == 0 || alloc_retries++ > 600) {
+				if (alloc_retries > 600) printf("postanim: score count timeout, skipping\n");
 				NEXT(g.mode4);
 				g.timer4 = 0x78;
+				g.ScoreCountFlags = 0;
+				alloc_retries = 0;
 			}
 			break;
 		case 0x10:

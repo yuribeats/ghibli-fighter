@@ -8,6 +8,7 @@ mkdir -p web_build/assets/music
 
 emcc \
   -O2 \
+  -s ASSERTIONS=2 \
   -s LEGACY_GL_EMULATION=1 \
   -lglut \
   -s ASYNCIFY=1 \

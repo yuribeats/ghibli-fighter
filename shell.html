@@ -324,9 +324,31 @@ var Module = {
     }
   }
 };
-window.onerror = function() {
-  document.getElementById('loading').innerHTML = '<div>ERROR</div>';
+window.onerror = function(msg, src, line, col, err) {
+  var detail = msg;
+  if (err && err.stack) detail = err.stack;
+  console.error('SF2 CRASH:', detail);
+  var el = document.getElementById('loading');
+  if (el) {
+    el.style.display = 'block';
+    el.style.fontSize = '8px';
+    el.style.maxWidth = '90vw';
+    el.style.wordBreak = 'break-all';
+    el.innerHTML = '<div>CRASH: ' + detail.substring(0, 500) + '</div>';
+  }
 };
+window.addEventListener('unhandledrejection', function(e) {
+  var detail = e.reason ? (e.reason.stack || e.reason.message || String(e.reason)) : 'unknown';
+  console.error('SF2 UNHANDLED:', detail);
+  var el = document.getElementById('loading');
+  if (el) {
+    el.style.display = 'block';
+    el.style.fontSize = '8px';
+    el.style.maxWidth = '90vw';
+    el.style.wordBreak = 'break-all';
+    el.innerHTML = '<div>CRASH: ' + detail.substring(0, 500) + '</div>';
+  }
+});
 (function() {
   var blink = true;
   setInterval(function() {

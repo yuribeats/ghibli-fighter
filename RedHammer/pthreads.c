@@ -46,6 +46,7 @@ static void fiber_entry(void *arg) {
     if (task->code) {
         task->code();
     }
+    printf("FIBER DIED: task %d code returned!\n", task->RHThreadID);
     task->status = TASK_EMPTY;
     fiber_alive[task->RHThreadID] = 0;
     emscripten_fiber_swap(&task_fibers[task->RHThreadID], &main_fiber);

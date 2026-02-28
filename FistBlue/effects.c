@@ -1268,18 +1268,24 @@ void task_blinkers(void) {		// 6e64
 }
 
 void task_game(void) {			// 7672 Game Supertask
+	static int game_tick = 0;
 	fadenwait4(1);
 	while (TRUE) {
 		g.NoInterrupt = MINUS_ONE;
 		if (g.FreezeMachine == FALSE) {
 			g.libsplatter++;
-			
+
 			LBGetInputs();				// get_inputs();
 			LBDecodeInputs();			// decode_inputs();
-			SM_game();					// game state machine 
-			
+			SM_game();					// game state machine
+
 			debughook(1);
+		} else {
+			if (game_tick % 300 == 0) {
+				printf("FROZEN: FreezeMachine=%d tick=%d\n", g.FreezeMachine, game_tick);
+			}
 		}
+		game_tick++;
 		(void)CHECK_SERVICE_BUTTON;       // XXX this is not a sub
 		if (g.Debug && (g.JPCost & JP_DBGSLEEP)) {
 			sf2sleep((g.JPDifficulty & JP_DIFFMASK) + 2);

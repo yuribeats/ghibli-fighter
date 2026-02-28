@@ -93,6 +93,15 @@ void SMFreePlay(void){		// 6cc8
 
 /* 7880 State for fight in progress */
 void gamemode_fightmain (void) {
+    static int diag_counter = 0;
+    static int heartbeat = 0;
+    if (++heartbeat % 300 == 1) {
+        printf("HB: m2=%d RR=%d TO=%d RC=%d DT=%d TW=%d P1s=%d/%d P2s=%d/%d P1e=%d P2e=%d\n",
+            g.mode2, g.RoundResult, g.TimeOut, g.RoundComplete,
+            g.DisableTimer, g.TimeWarpTimer,
+            g.Player1.mode0, g.Player1.mode1, g.Player2.mode0, g.Player2.mode1,
+            g.Player1.Energy, g.Player2.Energy);
+    }
     if(check_if_new_player()) {
         redraw_fight_dsk();
         fightstuff();
@@ -100,11 +109,23 @@ void gamemode_fightmain (void) {
         bumpdifficulty_08();
         LBCheckRoundResult();           /* check for timeout */
         if(g.RoundComplete) {
+            diag_counter = 0;
             g.mode2    += 2;
             g.RoundCnt++;
             draw_victorysigns();
             all_actions_sprites();
         } else {
+            if (g.RoundResult || g.TimeOut || g.DisableTimer) {
+                if (++diag_counter % 120 == 1) {
+                    printf("STUCK: RR=%d TO=%d RC=%d DT=%d P1fin=%d P2fin=%d P1m0=%d P1m1=%d P2m0=%d P2m1=%d P1e=%d P2e=%d\n",
+                        g.RoundResult, g.TimeOut, g.RoundComplete, g.DisableTimer,
+                        g.Player1.PSFinishedParticipating, g.Player2.PSFinishedParticipating,
+                        g.Player1.mode0, g.Player1.mode1, g.Player2.mode0, g.Player2.mode1,
+                        g.Player1.Energy, g.Player2.Energy);
+                }
+            } else {
+                diag_counter = 0;
+            }
             redraw_fight_dsk();
             fightstuff();
         }
@@ -698,7 +719,7 @@ void gamemode_prefightanim (void){
     }
     if(!g.PreRoundAnim) {
         /* Wait for music to reach :20 before starting the fight */
-        if (music_player_elapsed() < 20.0) {
+        if (music_player_elapsed() < 20.0f) {
             proc_all_actions();
             DSDrawAllMain();
             return;

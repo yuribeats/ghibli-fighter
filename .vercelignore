@@ -1,0 +1,4 @@
+build/
+SF2.app/
+.git/
+*.o

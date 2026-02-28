@@ -161,10 +161,9 @@ static void draw_scroll2_or_gif(void) {
 	}
 }
 static void draw_scroll1_or_skip(void) {
-	if (gif_bg_charselect_active() || gif_bg_vs_screen_active() || gif_bg_is_active()) {
+	if (gif_bg_charselect_active() || gif_bg_vs_screen_active() || gif_bg_title_active() || gif_bg_is_active()) {
 		return;  /* full-screen background replaces all scroll layers */
 	}
-	/* title GIF: keep scroll1 for text overlay (PRESS START, FREE PLAY, etc.) */
 	draw_scroll1();
 }
 static void draw_scroll3_or_gif(void) {
@@ -188,7 +187,6 @@ static struct texture_cache_t {
 	GLuint text_obj [TEXTURE_CACHE_SIZE][2];
 } TC;
 int gemuCacheClear;
-
 
 const GLfloat flips[4][4][2] = { 
 	{{1.0, 1.0},{0.0, 1.0},{0.0, 0.0},{1.0, 0.0}},
@@ -271,11 +269,10 @@ static inline void gemu_color_tile(int pixelSize, short palette, GLubyte *img, G
 
 void gemu_cache_scroll1(u16 tile, short palette) {
 	static GLubyte tempmap[8][8][4];
-
 	if (TC.text_scr1[tile][0] && TC.text_scr1[tile][1] != palette) {
 		glDeleteTextures(1, &TC.text_scr1[tile][0]);
 		TC.text_scr1[tile][0] = 0;
-	}
+	}	
 	if (TC.text_scr1[tile][0] == 0) {
 		gemu_readtile_scroll1(tile);
         gemu_color_tile(TILE_PIXELS_SCR1, palette, (GLubyte *)tempmap, &gemu.PalScroll1);
@@ -296,11 +293,10 @@ void gemu_cache_scroll1(u16 tile, short palette) {
 }
 void gemu_cache_scroll2(u16 tile, short palette) {
 	static GLubyte tempmap[16][16][4];
-
 	if (TC.text_scr2[tile][0] && TC.text_scr2[tile][1] != palette) {
 		glDeleteTextures(1, &TC.text_scr2[tile][0]);
 		TC.text_scr2[tile][0] = 0;
-	}
+	}		
 	if (TC.text_scr2[tile][0] == 0) {
 		gemu_readtile_scroll2(tile);
         gemu_color_tile(TILE_PIXELS_SCR2, palette, (GLubyte *)tempmap, &gemu.PalScroll2);
@@ -321,11 +317,10 @@ void gemu_cache_scroll2(u16 tile, short palette) {
 }
 void gemu_cache_scroll3(u16 tile, short palette) {
 	static GLubyte tempmap[32][32][4];
-
 	if (TC.text_scr3[tile][0] && TC.text_scr3[tile][1] != palette) {
 		glDeleteTextures(1, &TC.text_scr3[tile][0]);
 		TC.text_scr3[tile][0] = 0;
-	}
+	}	
 	if (TC.text_scr3[tile][0] == 0) {
 		gemu_readtile_scroll3(tile);
         gemu_color_tile(TILE_PIXELS_SCR3, palette, (GLubyte *)tempmap, &gemu.PalScroll3);
@@ -346,7 +341,6 @@ void gemu_cache_scroll3(u16 tile, short palette) {
 }
 void gemu_cache_object(u16 tile, short palette) {
 	static GLubyte tempmap[16][16][4];
-
 	if (TC.text_obj[tile][0] && TC.text_obj[tile][1] != palette) {
 		glDeleteTextures(1, &TC.text_obj[tile][0]);
 		TC.text_obj[tile][0] = 0;

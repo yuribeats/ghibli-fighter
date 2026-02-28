@@ -17,10 +17,6 @@
 #include "sf2types.h"
 #include "structs.h"
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#endif
-
 extern Game g;
 
 void gif_bg_update_title(void);
@@ -446,10 +442,6 @@ void gif_bg_update_title(void)
     if (!title_bg.loaded || !title_bg.gif)
         return;
 
-    /* Only update during title screen to save CPU/GPU on mobile */
-    if (!gif_bg_title_active())
-        return;
-
     title_bg.frame_timer -= 12;
     if (title_bg.frame_timer > 0)
         return;
@@ -508,5 +500,5 @@ void gif_bg_draw_title(void)
 
 int gif_bg_title_active(void)
 {
-    return title_bg.loaded && g.InDemo && g.mode0 == 0x2;
+    return title_bg.loaded && g.InDemo && g.mode0 != 0xa;
 }

@@ -144,6 +144,7 @@ static void sub_7c50(void) {
 static void game_mode_28(void) {	// 7af0
 	Object *obj;
 	Player *ply;
+	
 	switch (g.mode2) {
 		case 0:
 			NEXT(g.mode2);
@@ -326,7 +327,7 @@ static void sub_7dca(void) {		// 7dca game mode 2,A
 			break;
 		case 6:
 			if(g.timer3--==0) {
-		g.x02eb = 0;
+				g.x02eb = 0;
 				g.mode0=g.mode1=g.mode2=g.mode3=g.mode4 = 0;
 				task_kill(3);
 				create_task(task_attractSequence, 1, 0, 0, 0);

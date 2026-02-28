@@ -48,7 +48,7 @@ _deps
 CMakeUserPresets.json
 .cache
 FBTests/test-redhammer
-web_build/
+# web_build/ - not ignored, needed for Vercel deploy
 SF2.app/
 .vercel
 .env*.local

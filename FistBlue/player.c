@@ -130,10 +130,9 @@ static void apply_throw_damage(Player *ply, Player *opp_a3, short index) {		///0
 	LBGetDamage(ply, opp_a3, index);
     opp_a3->UndealtDamage = dr.damage;
     opp_a3->RewardID = dr.d5;             /* score reward */
-    if(g.FastEndingFight == 0 && g.OnBonusStage == 0) {
-        if(opp_a3->Energy - dr.damage >= 0) { return; }
+    if (g.FastEndingFight == 0 && g.OnBonusStage == 0) {
+        if(opp_a3->Energy >= dr.damage) { return; }
 
-        /* player is knocked out */
         if(ply->FighterID == FID_CHUN_LI) {
             queuesound(SOUND_KO_FEMALE);
         } else {
@@ -141,7 +140,6 @@ static void apply_throw_damage(Player *ply, Player *opp_a3, short index) {		///0
         }
         opp_a3->Energy        = -1;
         opp_a3->UndealtDamage = 0;
-
         QueueEffect(opp_a3->RewardID, opp_a3->Side ^ 1);
 		LBStartTimeWarp();
     } else {
@@ -165,10 +163,10 @@ void LBGetDamage(Player *ply, Player *opp, int index) {	/* 0x35c0 */
     } else {
         index -= 0x20;
         dr.d5=data_995a6[index/2];
-
+        
         if(opp->Energy <= data_99566[index/2][1])          { dr.damage = data_99566[index/2][2];
         } else if (opp->Energy >= data_99566[index/2][3]) { dr.damage = data_99566[index/2][4];
-        } else                { dr.damage = opp->Energy-(opp->Energy >> data_99566[index/2][0]);
+        } else                { dr.damage = opp->Energy-(opp->Energy >> data_99566[index/2][0]); 
         }
     }       
     dr.damage=_EnergyDamageAdjust(ply, dr.damage);     /* diminish the damage */

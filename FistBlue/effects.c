@@ -1271,11 +1271,11 @@ void task_game(void) {			// 7672 Game Supertask
 		g.NoInterrupt = MINUS_ONE;
 		if (g.FreezeMachine == FALSE) {
 			g.libsplatter++;
-
+			
 			LBGetInputs();				// get_inputs();
 			LBDecodeInputs();			// decode_inputs();
-			SM_game();					// game state machine
-
+			SM_game();					// game state machine 
+			
 			debughook(1);
 		}
 		(void)CHECK_SERVICE_BUTTON;       // XXX this is not a sub

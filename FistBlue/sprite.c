@@ -917,6 +917,9 @@ void drawsprite(Object *obj) {         /* 7edaa */
         u32 raw_image = obj->ActionScript->Image;
         u32 swapped = RHSwapLong(raw_image);
         if (swapped >= 0x100000) {
+            printf("drawsprite: BAD image offset 0x%08x (raw 0x%08x) AS=%ld\n",
+                   swapped, raw_image,
+                   (long)((char*)obj->ActionScript - g_code_roms));
             return;
         }
         image = (const struct image *)RHCODE(swapped);
